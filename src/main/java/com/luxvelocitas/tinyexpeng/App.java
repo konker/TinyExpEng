@@ -13,6 +13,7 @@ import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummyResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummySubjectDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.experiment.FirstNThenRestRandomOrderSyncExperimentRunner;
 import com.luxvelocitas.tinyexpeng.runner.experiment.IExperimentRunner;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.*;
 import com.luxvelocitas.tinyexpeng.runner.experiment.SequentialSyncExperimentRunner;
@@ -46,7 +47,6 @@ public class App {
         // Add the TaskGroup to the Experiment
         experiment1.add(taskGroup1);
 
-        /*
         // Create a TaskGroup
         TaskGroup taskGroup2 = new TaskGroup("tg-r1");
         taskGroup2.setName("Real Tasks");
@@ -60,7 +60,7 @@ public class App {
         }
 
         // Add the TaskGroup to the Experiment
-        experiment1.addTaskGroup(taskGroup2);
+        experiment1.add(taskGroup2);
 
         // Create a TaskGroup
         TaskGroup taskGroup3 = new TaskGroup("tg-r2");
@@ -75,9 +75,8 @@ public class App {
         }
 
         // Add the TaskGroup to the Experiment
-        experiment1.addTaskGroup(taskGroup3);
-*/
-        
+        experiment1.add(taskGroup3);
+
         // Add some event handlers to the experiment
         experiment1.addEventListener(ExperimentEvent.EXPERIMENT_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
@@ -154,22 +153,17 @@ public class App {
         List<ITaskGroupRunner> taskGroupRunners1 = new ArrayList<ITaskGroupRunner>();
 
         // A Task runner which runs each the task sequentially
-        //taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
         //taskGroupRunners1.add(new RandomOrderSyncTaskGroupRunner());
-        taskGroupRunners1.add(new StaggeredSequentialConcurrentTaskGroupRunner(1000));
+        //taskGroupRunners1.add(new StaggeredSequentialConcurrentTaskGroupRunner(1000));
         //taskGroupRunners1.add(new RandomOrderConcurrentTaskGroupRunner());
         //taskGroupRunners1.add(new SequentialConcurrentTaskGroupRunner());
 
-        /*
-        // A Task runner which runs tasks in a random order
-        taskRunners1.add(new RandomOrderSyncTaskRunner());
-
-        // A Task runner which runs each the task sequentially
-        taskRunners1.add(new SequentialSyncTaskRunner());
-*/
-        
         // An Experiment runner which runs each task group sequentially
-        IExperimentRunner experimentRunner1 = new SequentialSyncExperimentRunner();
+        IExperimentRunner experimentRunner1 =
+                new FirstNThenRestRandomOrderSyncExperimentRunner(1);
         experimentRunner1.setTaskGroupRunners(taskGroupRunners1);
 
         /*
