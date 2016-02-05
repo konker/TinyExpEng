@@ -2,7 +2,7 @@ package com.luxvelocitas.tinyexpeng.runner.taskgroup;
 
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.runner.TaskThread;
 import org.slf4j.Logger;
@@ -29,10 +29,7 @@ public abstract class BaseConcurrentTaskGroupRunner extends AbstractTaskGroupRun
 
         joinThreads();
 
-        // End of the TaskGroup
-        experimentRunContext.removeRunContextEventListener(ExperimentEventType.TASK_END, mRunContextEventListener);
-
-        mCurTaskGroup.complete(experimentRunContext);
+        finalStep(experimentRunContext);
 
         mThreadGroup.clear();
     }
@@ -47,10 +44,18 @@ public abstract class BaseConcurrentTaskGroupRunner extends AbstractTaskGroupRun
         /*[NOOP]*/
     }
 
+    @Override
+    public void finalStep(ExperimentRunContext experimentRunContext) {
+        experimentRunContext.removeRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
+
+        // End of the TaskGroup
+        mCurTaskGroup.complete(experimentRunContext);
+    }
+
     protected void createThreads(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
         // Create a TaskThread for each task and add it to the group
-        for (int i=0; i<mNumTasksToExecute; i++) {
-            mCurrentTaskIndexPos = nextTaskIndexPos(mCurrentTaskIndexPos, mNumTasksExecuted);
+        for (int i=0; i< mNumToExecute; i++) {
+            mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
             Task task = getCurTask(taskGroup);
 
             mThreadGroup.add(new TaskThread(experimentRunContext, taskGroup, task));

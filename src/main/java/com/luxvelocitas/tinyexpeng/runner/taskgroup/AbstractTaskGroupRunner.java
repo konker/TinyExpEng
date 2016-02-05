@@ -3,25 +3,22 @@ package com.luxvelocitas.tinyexpeng.runner.taskgroup;
 import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
+import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
+import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunner;
+import com.luxvelocitas.tinyexpeng.runner.ISteppable;
 import org.slf4j.Logger;
 
 
-public abstract class AbstractTaskGroupRunner implements ITaskGroupRunner {
-    protected static final int START_INDEX = -1;
-
-    protected Logger mLogger;
-    protected int mCurrentTaskIndexPos;
-    protected int[] mTaskIndex;
-    protected boolean mAutoStep;
-
+/**
+ * @author Konrad Markus <konker@luxvelocitas.com>
+ */
+public abstract class AbstractTaskGroupRunner extends AbstractRunner implements ITaskGroupRunner, IRunner, ISteppable {
     protected TaskGroup mCurTaskGroup;
-    protected ITinyEventListener<ExperimentEventType, DataBundle> mRunContextEventListener;
-    protected int mNumTasksExecuted;
-    protected int mNumTasksToExecute;
+    protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
 
     public AbstractTaskGroupRunner() {
         mAutoStep = true;
@@ -34,16 +31,7 @@ public abstract class AbstractTaskGroupRunner implements ITaskGroupRunner {
     }
 
     @Override
-    public boolean isAutoStep() {
-        return mAutoStep;
-    }
-
-    @Override
-    public void setAutoStep(boolean autoStep) {
-        mAutoStep = autoStep;
-    }
-
-    protected void execute(final ExperimentRunContext experimentRunContext) {
+    public void execute(final ExperimentRunContext experimentRunContext) {
         // Get the current Task according to the index and start it
         Task curTask = getCurTask(mCurTaskGroup);
 
@@ -52,34 +40,23 @@ public abstract class AbstractTaskGroupRunner implements ITaskGroupRunner {
     }
 
     protected Task getCurTask(TaskGroup taskGroup) {
-        return taskGroup.get(mTaskIndex[mCurrentTaskIndexPos]);
+        return taskGroup.get(mIndex[mCurrentIndexPos]);
     }
 
     protected void _init(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
-        mRunContextEventListener = new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
-                mNumTasksExecuted++;
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
+                mNumExecuted++;
             }
         };
-        experimentRunContext.addRunContextEventListener(ExperimentEventType.TASK_END, mRunContextEventListener);
+        experimentRunContext.addRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
 
-        mNumTasksToExecute = taskGroup.size();
-        mNumTasksExecuted = 0;
-        mCurrentTaskIndexPos = START_INDEX;
+        mNumToExecute = taskGroup.size();
+        mNumExecuted = 0;
+        mCurrentIndexPos = START_INDEX;
 
         // Initialize the index, allow subclass to override this
-        mTaskIndex = initTaskIndex(mNumTasksToExecute);
-    }
-
-    /** Initialize the index */
-    protected abstract int[] initTaskIndex(int numTasksToExecute);
-
-    /** Set the next index value */
-    protected int nextTaskIndexPos(int currentTaskIndexPos, int numTasksExecuted) {
-        if (currentTaskIndexPos== START_INDEX) {
-            return 0;
-        }
-        return currentTaskIndexPos + 1;
+        mIndex = initIndex(mNumToExecute);
     }
 }

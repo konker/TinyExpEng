@@ -1,32 +1,50 @@
 package com.luxvelocitas.tinyexpeng.runner.experiment;
 
-import java.util.List;
-
+import com.luxvelocitas.datautils.DataBundle;
+import com.luxvelocitas.tinyevent.ITinyEventListener;
+import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.StaleExperimentRunContextException;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
+import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
+import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunner;
+import com.luxvelocitas.tinyexpeng.runner.ISteppable;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 
 /**
  * @author Konrad Markus <konker@luxvelocitas.com>
- *
  */
-public abstract class AbstractExperimentRunner implements IExperimentRunner {
-    protected static final int START_INDEX = -1;
-
-    protected Logger mLogger;
-    protected List<ITaskGroupRunner> mTaskGroupRunners;
-
-    protected int mCurrentTaskGroupIndexPos;
-    protected int[] mTaskGroupIndex;
-    protected boolean mAutoStep;
+public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner, ISteppable {
     protected Experiment mCurExperiment;
+    protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
+    protected List<ITaskGroupRunner> mTaskGroupRunners;
 
     public AbstractExperimentRunner() {
         mAutoStep = true;
+    }
+
+    @Override
+    public void start(Logger logger, final ExperimentRunContext experimentRunContext, final Experiment experiment) throws StaleExperimentRunContextException {
+        mLogger = logger;
+        mCurExperiment = experiment;
+    }
+
+    @Override
+    public void execute(final ExperimentRunContext experimentRunContext) {
+        // Get the current task group according to the index
+        TaskGroup curTaskGroup = getCurTaskGroup(mCurExperiment);
+
+        // Get the appropriate TaskGroupRunner
+        ITaskGroupRunner taskGroupRunner = getCurTaskGroupRunner();
+
+        // Apply it to the current TaskGroup
+        taskGroupRunner.start(mLogger, experimentRunContext, curTaskGroup);
     }
 
     @Override
@@ -36,54 +54,29 @@ public abstract class AbstractExperimentRunner implements IExperimentRunner {
         return this;
     }
 
-    @Override
-    public void start(Logger logger, final ExperimentRunContext experimentRunContext, final Experiment experiment) throws StaleExperimentRunContextException {
-        mLogger = logger;
-        mCurExperiment = experiment;
-        mCurExperiment.start(experimentRunContext);
+    protected TaskGroup getCurTaskGroup(Experiment experiment) {
+        return experiment.get(mIndex[mCurrentIndexPos]);
     }
 
-    @Override
-    public boolean isAutoStep() {
-        return mAutoStep;
-    }
-
-    @Override
-    public void setAutoStep(boolean autoStep) {
-        mAutoStep = autoStep;
-    }
-
-    protected void execute(final ExperimentRunContext experimentRunContext) {
-        // Get the current task group according to the index
-        TaskGroup curTaskGroup = getCurTaskGroup(mCurExperiment);
-
-        // Start the current TaskGroup
-        curTaskGroup.start(experimentRunContext);
-
-        // Get the appropriate TaskGroupRunner
-        ITaskGroupRunner taskGroupRunner = getCurTaskGroupRunner();
-
-        // Apply it to the current TaskGroup
-        taskGroupRunner.start(mLogger, experimentRunContext, curTaskGroup);
-    }
-
-    public TaskGroup getCurTaskGroup(Experiment experiment) {
-        return experiment.get(mTaskGroupIndex[mCurrentTaskGroupIndexPos]);
-    }
-
-    public ITaskGroupRunner getCurTaskGroupRunner() {
+    protected ITaskGroupRunner getCurTaskGroupRunner() {
         //[TODO: is this a good way?]
-        return mTaskGroupRunners.get(mTaskGroupIndex[mCurrentTaskGroupIndexPos]);
+        return mTaskGroupRunners.get(mIndex[mCurrentIndexPos]);
     }
 
-    /** Initialize the index */
-    protected abstract int[] initTaskGroupIndex(int numTasksGroupsToExecute);
+    protected void _init(final ExperimentRunContext experimentRunContext, final Experiment experiment) {
+        mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
+            @Override
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
+                mNumExecuted++;
+            }
+        };
+        experimentRunContext.addRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
 
-    /** Set the next index value */
-    protected int nextTaskGroupIndexPos(int currentTaskGroupIndexPos, int numTaskGroupsExecuted) {
-        if (currentTaskGroupIndexPos== START_INDEX) {
-            return 0;
-        }
-        return currentTaskGroupIndexPos + 1;
+        mNumToExecute = experiment.size();
+        mNumExecuted = 0;
+        mCurrentIndexPos = START_INDEX;
+
+        // Initialize the index, allow subclass to override this
+        mIndex = initIndex(mNumToExecute);
     }
 }

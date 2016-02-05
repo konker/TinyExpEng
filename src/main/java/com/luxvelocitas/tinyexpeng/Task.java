@@ -3,7 +3,7 @@ package com.luxvelocitas.tinyexpeng;
 import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.datautils.MetadataObject;
 import com.luxvelocitas.tinyexpeng.data.DataException;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 
 
@@ -39,13 +39,13 @@ public class Task extends MetadataObject {
     public void start(ExperimentRunContext experimentRunContext, TaskGroup taskGroup) {
         // Broadcast the event to the run context
         mEventData.put(Experiment.DATA_KEY_PARENT, taskGroup);
-        experimentRunContext.notifyRunContextEvent(ExperimentEventType.TASK_START, mEventData);
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_START, mEventData);
     }
 
     public void complete(ExperimentRunContext experimentRunContext, TaskGroup taskGroup) {
         // Broadcast the event to the run context
         mEventData.put(Experiment.DATA_KEY_PARENT, taskGroup);
-        experimentRunContext.notifyRunContextEvent(ExperimentEventType.TASK_END, mEventData);
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_END, mEventData);
     }
 
     public Task addResult(final ExperimentRunContext experimentRunContext, final Result result) throws DataException {

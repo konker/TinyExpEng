@@ -10,7 +10,7 @@ import com.luxvelocitas.tinyexpeng.Subject;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import org.slf4j.Logger;
 
 import java.util.Set;
@@ -21,7 +21,7 @@ public class ExperimentRunContext {
     protected final Logger mLogger;
     protected final Subject mSubject;
     protected final String mRunId;
-    protected final SimpleTinyEventDispatcher<ExperimentEventType, DataBundle> mEventDistpatcher;
+    protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDistpatcher;
     private final Experiment mExperiment;
 
     protected Set<IResultDataSink> mResultDataSinks;
@@ -35,22 +35,22 @@ public class ExperimentRunContext {
         mRunId = runId;
         mEnded = false;
 
-        mEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEventType, DataBundle>();
+        mEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
         mResultDataSinks = new CopyOnWriteArraySet<IResultDataSink>();
         mSubjectDataSinks = new CopyOnWriteArraySet<ISubjectDataSink>();
 
         // Add a listener for the start and end of the experiment run
-        addRunContextEventListener(ExperimentEventType.EXPERIMENT_START, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        addRunContextEventListener(ExperimentEvent.EXPERIMENT_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> event) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 _start();
             }
         });
 
         // Add a listener for the start and end of the experiment run
-        addRunContextEventListener(ExperimentEventType.EXPERIMENT_END, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        addRunContextEventListener(ExperimentEvent.EXPERIMENT_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> event) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 _end();
             }
         });
@@ -96,15 +96,15 @@ public class ExperimentRunContext {
         }
     }
 
-    public void addRunContextEventListener(ExperimentEventType eventType, ITinyEventListener<ExperimentEventType, DataBundle> eventListener) {
+    public void addRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
         mEventDistpatcher.addListener(eventType, eventListener);
     }
 
-    public void removeRunContextEventListener(ExperimentEventType eventType, ITinyEventListener<ExperimentEventType, DataBundle> eventListener) {
+    public void removeRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
         mEventDistpatcher.removeListener(eventType, eventListener);
     }
 
-    public void notifyRunContextEvent(ExperimentEventType eventType, DataBundle eventData) {
+    public void notifyRunContextEvent(ExperimentEvent eventType, DataBundle eventData) {
         // Also forward this event to the Experiment
         eventData.put("experimentRunContext", this);
         mExperiment.notifyEvent(eventType, eventData);

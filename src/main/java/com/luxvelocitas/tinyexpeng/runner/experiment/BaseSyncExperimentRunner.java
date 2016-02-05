@@ -1,12 +1,9 @@
 package com.luxvelocitas.tinyexpeng.runner.experiment;
 
-import com.luxvelocitas.datautils.DataBundle;
-import com.luxvelocitas.tinyevent.ITinyEventListener;
-import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.StaleExperimentRunContextException;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
+import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import org.slf4j.Logger;
 
 /**
@@ -14,54 +11,25 @@ import org.slf4j.Logger;
  *
  */
 public abstract class BaseSyncExperimentRunner extends AbstractExperimentRunner implements IExperimentRunner {
-    protected ITinyEventListener<ExperimentEventType, DataBundle> mRunContextEventListener;
-    protected int mNumTaskGroupsToExecute;
-    protected int mNumTaskGroupsExecuted;
 
     @Override
     public void start(Logger logger, final ExperimentRunContext experimentRunContext, Experiment experiment) throws StaleExperimentRunContextException {
         super.start(logger, experimentRunContext, experiment);
 
-        mRunContextEventListener = new ITinyEventListener<ExperimentEventType, DataBundle>() {
-            @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
-                mNumTaskGroupsExecuted++;
-            }
-        };
-        experimentRunContext.addRunContextEventListener(ExperimentEventType.TASK_GROUP_END, mRunContextEventListener);
+        _init(experimentRunContext, experiment);
 
-        mNumTaskGroupsToExecute = experiment.size();
-        mNumTaskGroupsExecuted = 0;
-        mCurrentTaskGroupIndexPos = START_INDEX;
+        // Start the Experiment
+        mCurExperiment.start(experimentRunContext);
 
-        // Initialize the index, allow subclass to override this
-        mTaskGroupIndex = initTaskGroupIndex(mNumTaskGroupsToExecute);
-
+        // Process the TaskGroups
         nextStep(experimentRunContext);
     }
 
     @Override
-    public boolean hasStep() {
-        return mNumTaskGroupsExecuted < mNumTaskGroupsToExecute;
-    }
+    public void finalStep(ExperimentRunContext experimentRunContext) {
+        experimentRunContext.removeRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
 
-    @Override
-    public void nextStep(ExperimentRunContext experimentRunContext) {
-        // Get the
-        if (hasStep()) {
-            // Start the next task group
-            mCurrentTaskGroupIndexPos = nextTaskGroupIndexPos(mCurrentTaskGroupIndexPos, mNumTaskGroupsExecuted);
-            execute(experimentRunContext);
-
-            if (isAutoStep()) {
-                nextStep(experimentRunContext);
-            }
-        }
-        else {
-            // End of the Experiment
-            experimentRunContext.removeRunContextEventListener(ExperimentEventType.TASK_GROUP_END, mRunContextEventListener);
-
-            mCurExperiment.complete(experimentRunContext);
-        }
+        // End of the Experiment
+        mCurExperiment.complete(experimentRunContext);
     }
 }

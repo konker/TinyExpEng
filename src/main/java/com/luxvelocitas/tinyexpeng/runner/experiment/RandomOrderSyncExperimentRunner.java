@@ -5,9 +5,9 @@ import com.luxvelocitas.datautils.Util;
 
 public class RandomOrderSyncExperimentRunner extends SequentialSyncExperimentRunner implements IExperimentRunner {
     @Override
-    protected int[] initTaskGroupIndex(int numTaskGroupsToExecute) {
+    public int[] initIndex(int numToExecute) {
         // Initialize to default sequential index
-        int[] ret = super.initTaskGroupIndex(numTaskGroupsToExecute);
+        int[] ret = super.initIndex(numToExecute);
 
         // Shuffle the index
         Util.shuffleIntArrayInPlace(ret);

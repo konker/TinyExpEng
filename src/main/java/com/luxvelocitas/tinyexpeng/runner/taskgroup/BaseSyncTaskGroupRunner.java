@@ -1,7 +1,7 @@
 package com.luxvelocitas.tinyexpeng.runner.taskgroup;
 
 import com.luxvelocitas.tinyexpeng.TaskGroup;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import org.slf4j.Logger;
 
@@ -13,31 +13,18 @@ public abstract class BaseSyncTaskGroupRunner extends AbstractTaskGroupRunner im
 
         _init(experimentRunContext, taskGroup);
 
+        // Start the TaskGroup
+        mCurTaskGroup.start(experimentRunContext);
+
+        // Process the Tasks
         nextStep(experimentRunContext);
     }
 
     @Override
-    public boolean hasStep() {
-        return mNumTasksExecuted < mNumTasksToExecute;
-    }
+    public void finalStep(ExperimentRunContext experimentRunContext) {
+        experimentRunContext.removeRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
 
-    @Override
-    public void nextStep(ExperimentRunContext experimentRunContext) {
-        // Get the
-        if (hasStep()) {
-            // Start the next task group
-            mCurrentTaskIndexPos = nextTaskIndexPos(mCurrentTaskIndexPos, mNumTasksExecuted);
-            execute(experimentRunContext);
-
-            if (isAutoStep()) {
-                nextStep(experimentRunContext);
-            }
-        }
-        else {
-            // End of the TaskGroup
-            experimentRunContext.removeRunContextEventListener(ExperimentEventType.TASK_END, mRunContextEventListener);
-
-            mCurTaskGroup.complete(experimentRunContext);
-        }
+        // End of the TaskGroup
+        mCurTaskGroup.complete(experimentRunContext);
     }
 }

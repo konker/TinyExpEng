@@ -9,11 +9,9 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
-import com.luxvelocitas.tinyexpeng.data.csv.CsvResultDataSink;
-import com.luxvelocitas.tinyexpeng.data.csv.CsvSubjectDataSink;
 import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummyResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummySubjectDataSink;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.runner.experiment.IExperimentRunner;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.*;
@@ -81,42 +79,42 @@ public class App {
 */
         
         // Add some event handlers to the experiment
-        experiment1.addEventListener(ExperimentEventType.EXPERIMENT_START, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.EXPERIMENT_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Experiment target = (Experiment)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("Experiment Start: " + target.getName());
             }
         });
 
-        experiment1.addEventListener(ExperimentEventType.EXPERIMENT_END, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.EXPERIMENT_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Experiment target = (Experiment)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("Experiment End: " + target.getName());
                 //[TODO: print out result set]
             }
         });
 
-        experiment1.addEventListener(ExperimentEventType.TASK_GROUP_START, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.TASK_GROUP_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 TaskGroup target = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("\tTaskGroup Start: " + target.getName());
             }
         });
 
-        experiment1.addEventListener(ExperimentEventType.TASK_GROUP_END, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.TASK_GROUP_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 TaskGroup target = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("\tTaskGroup End: " + target.getName());
             }
         });
 
-        experiment1.addEventListener(ExperimentEventType.TASK_START, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.TASK_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 TaskGroup parent = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_PARENT);
                 ExperimentRunContext experimentRunContext =
@@ -142,9 +140,9 @@ public class App {
             }
         });
 
-        experiment1.addEventListener(ExperimentEventType.TASK_END, new ITinyEventListener<ExperimentEventType, DataBundle>() {
+        experiment1.addEventListener(ExperimentEvent.TASK_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEventType, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("\t\tTask end: " + target.getName());
             }

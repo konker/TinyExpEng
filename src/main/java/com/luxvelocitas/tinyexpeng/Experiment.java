@@ -5,7 +5,7 @@ import com.luxvelocitas.datautils.MetadataObject;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyexpeng.data.DataException;
-import com.luxvelocitas.tinyexpeng.event.ExperimentEventType;
+import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class Experiment extends MetadataObject {
     public static final String DATA_KEY_PARENT = "parent";
 
     protected List<TaskGroup> mTaskGroups;
-    protected SimpleTinyEventDispatcher<ExperimentEventType, DataBundle> mEventDispatcher;
+    protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;
 
     protected boolean mStarted;
     protected DataBundle mEventData;
@@ -58,7 +58,7 @@ public class Experiment extends MetadataObject {
     private void _init() {
         setUuid();
         mTaskGroups = new ArrayList<TaskGroup>();
-        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEventType, DataBundle>();
+        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
 
         mEventData = new DataBundle();
         mEventData.put(Experiment.DATA_KEY_TARGET, this);
@@ -73,11 +73,11 @@ public class Experiment extends MetadataObject {
         mStarted = true;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEventType.EXPERIMENT_START, mEventData);
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
     }
 
     public void complete(ExperimentRunContext experimentRunContext) {
-        experimentRunContext.notifyRunContextEvent(ExperimentEventType.EXPERIMENT_END, mEventData);
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
     }
 
     public void add(TaskGroup taskGroup) {
@@ -131,15 +131,15 @@ public class Experiment extends MetadataObject {
         return this;
     }
 
-    public void addEventListener(ExperimentEventType eventType, ITinyEventListener<ExperimentEventType, DataBundle> eventListener) {
+    public void addEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
         mEventDispatcher.addListener(eventType, eventListener);
     }
 
-    public void removeEventListener(ExperimentEventType eventType, ITinyEventListener<ExperimentEventType, DataBundle> eventListener) {
+    public void removeEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
         mEventDispatcher.addListener(eventType, eventListener);
     }
 
-    public void notifyEvent(ExperimentEventType eventType, DataBundle eventData) {
+    public void notifyEvent(ExperimentEvent eventType, DataBundle eventData) {
         mEventDispatcher.notify(eventType, eventData);
     }
 }
