@@ -6,10 +6,7 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
-import com.luxvelocitas.tinyexpeng.runner.IRunner;
-import com.luxvelocitas.tinyexpeng.runner.ISteppable;
+import com.luxvelocitas.tinyexpeng.runner.*;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
 
 import java.util.List;
@@ -18,7 +15,7 @@ import java.util.List;
 /**
  * @author Konrad Markus <konker@luxvelocitas.com>
  */
-public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner, ISteppable {
+public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner {
     protected Experiment mCurExperiment;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
     protected List<ITaskGroupRunner> mItemRunners;

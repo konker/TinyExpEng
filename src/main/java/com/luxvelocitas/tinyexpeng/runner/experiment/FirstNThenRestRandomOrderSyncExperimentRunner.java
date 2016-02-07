@@ -2,11 +2,10 @@ package com.luxvelocitas.tinyexpeng.runner.experiment;
 
 import com.luxvelocitas.datautils.Util;
 import com.luxvelocitas.tinyexpeng.runner.IRunner;
-import com.luxvelocitas.tinyexpeng.runner.ISteppable;
 
 /**
  */
-public class FirstNThenRestRandomOrderSyncExperimentRunner extends BaseSyncExperimentRunner implements IRunner, IExperimentRunner, ISteppable {
+public class FirstNThenRestRandomOrderSyncExperimentRunner extends BaseSyncExperimentRunner implements IRunner, IExperimentRunner {
     protected int mFirstN;
 
     public FirstNThenRestRandomOrderSyncExperimentRunner(int firstN) {

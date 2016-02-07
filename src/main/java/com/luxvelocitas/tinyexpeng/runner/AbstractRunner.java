@@ -2,7 +2,7 @@ package com.luxvelocitas.tinyexpeng.runner;
 
 /**
  */
-public abstract class AbstractRunner implements IRunner, ISteppable {
+public abstract class AbstractRunner implements IRunner {
     protected static final int START_INDEX = -1;
 
     protected int mCurrentIndexPos;
@@ -24,9 +24,7 @@ public abstract class AbstractRunner implements IRunner, ISteppable {
             mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
             execute(experimentRunContext);
 
-            if (_isAutoStep()) {
-                nextStep(experimentRunContext);
-            }
+            nextStep(experimentRunContext);
         }
         else {
             finalStep(experimentRunContext);
@@ -46,13 +44,5 @@ public abstract class AbstractRunner implements IRunner, ISteppable {
     @Override
     public int getFirstIndexPos(int currentIndexPos) {
         return 0;
-    }
-
-    protected boolean _isAutoStep() {
-        return mAutoStep;
-    }
-
-    protected void _setAutoStep(boolean autoStep) {
-        mAutoStep = autoStep;
     }
 }

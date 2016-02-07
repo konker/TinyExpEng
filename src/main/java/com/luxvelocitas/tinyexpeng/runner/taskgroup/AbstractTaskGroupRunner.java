@@ -6,16 +6,13 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
-import com.luxvelocitas.tinyexpeng.runner.IRunner;
-import com.luxvelocitas.tinyexpeng.runner.ISteppable;
+import com.luxvelocitas.tinyexpeng.runner.*;
 
 
 /**
  * @author Konrad Markus <konker@luxvelocitas.com>
  */
-public abstract class AbstractTaskGroupRunner extends AbstractRunner implements ITaskGroupRunner, IRunner, ISteppable {
+public abstract class AbstractTaskGroupRunner extends AbstractRunner implements ITaskGroupRunner, IRunner {
     protected TaskGroup mCurTaskGroup;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
 
