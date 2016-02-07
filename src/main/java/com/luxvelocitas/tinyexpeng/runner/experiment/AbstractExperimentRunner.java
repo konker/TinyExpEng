@@ -17,6 +17,7 @@ import java.util.List;
  */
 public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner {
     protected Experiment mCurExperiment;
+    protected TaskGroup mCurTaskGroup;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
     protected List<ITaskGroupRunner> mItemRunners;
 
@@ -31,14 +32,20 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
 
     @Override
     public void execute(final ExperimentRunContext experimentRunContext) {
+        // Check that the previous Task has been finished before proceeding
+        if (mCurTaskGroup != null) {
+            if (!mCurTaskGroup.isEnded()) {
+                throw new TaskGroupNotEndedException("Attempt to start TaskGroup before the previous TaskGroup has ended");
+            }
+        }
         // Get the current task group according to the index
-        TaskGroup curTaskGroup = getCurItem(mCurExperiment);
+        mCurTaskGroup = getCurItem(mCurExperiment);
 
         // Get the appropriate TaskGroupRunner
         ITaskGroupRunner taskGroupRunner = getCurItemRunner();
 
         // Apply it to the current TaskGroup
-        taskGroupRunner.start(experimentRunContext, curTaskGroup);
+        taskGroupRunner.start(experimentRunContext, mCurTaskGroup);
     }
 
     @Override

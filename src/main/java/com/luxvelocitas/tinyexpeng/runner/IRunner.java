@@ -14,4 +14,10 @@ public interface IRunner {
 
     /** Set the first index value */
     int getFirstIndexPos(int currentIndexPos);
+
+    boolean hasStep();
+
+    void nextStep(final ExperimentRunContext experimentRunContext);
+
+    void finalStep(final ExperimentRunContext experimentRunContext);
 }

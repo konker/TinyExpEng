@@ -14,6 +14,7 @@ import com.luxvelocitas.tinyexpeng.runner.*;
  */
 public abstract class AbstractTaskGroupRunner extends AbstractRunner implements ITaskGroupRunner, IRunner {
     protected TaskGroup mCurTaskGroup;
+    protected Task mCurTask;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
 
     public AbstractTaskGroupRunner() {
@@ -27,11 +28,18 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
 
     @Override
     public void execute(final ExperimentRunContext experimentRunContext) {
+        // Check that the previous Task has been finished before proceeding
+        if (mCurTask != null) {
+            if (!mCurTask.isEnded()) {
+                throw new TaskNotEndedException("Attempt to start Task before the previous Task has ended");
+            }
+        }
+
         // Get the current Task according to the index and start it
-        Task curTask = getCurItem(mCurTaskGroup);
+        mCurTask = getCurItem(mCurTaskGroup);
 
         // Start the current Task
-        curTask.start(experimentRunContext);
+        mCurTask.start(experimentRunContext);
     }
 
     protected Task getCurItem(TaskGroup taskGroup) {
