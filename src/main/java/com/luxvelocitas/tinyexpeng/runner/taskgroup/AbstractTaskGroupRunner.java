@@ -26,7 +26,6 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
     @Override
     public void start(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
         mCurTaskGroup = taskGroup;
-        //mEngineThread = new RunnerThread(this, experimentRunContext, taskGroup);
     }
 
     @Override
