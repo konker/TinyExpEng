@@ -10,7 +10,6 @@ import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunner;
 import com.luxvelocitas.tinyexpeng.runner.ISteppable;
-import org.slf4j.Logger;
 
 
 /**
@@ -25,21 +24,21 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
     }
 
     @Override
-    public void start(Logger logger, final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
-        mLogger = logger;
+    public void start(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
         mCurTaskGroup = taskGroup;
+        //mEngineThread = new RunnerThread(this, experimentRunContext, taskGroup);
     }
 
     @Override
     public void execute(final ExperimentRunContext experimentRunContext) {
         // Get the current Task according to the index and start it
-        Task curTask = getCurTask(mCurTaskGroup);
+        Task curTask = getCurItem(mCurTaskGroup);
 
         // Start the current Task
-        curTask.start(experimentRunContext, mCurTaskGroup);
+        curTask.start(experimentRunContext);
     }
 
-    protected Task getCurTask(TaskGroup taskGroup) {
+    protected Task getCurItem(TaskGroup taskGroup) {
         return taskGroup.get(mIndex[mCurrentIndexPos]);
     }
 

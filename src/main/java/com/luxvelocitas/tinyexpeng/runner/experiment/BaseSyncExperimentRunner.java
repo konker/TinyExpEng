@@ -1,7 +1,6 @@
 package com.luxvelocitas.tinyexpeng.runner.experiment;
 
 import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.StaleExperimentRunContextException;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import org.slf4j.Logger;
@@ -13,8 +12,8 @@ import org.slf4j.Logger;
 public abstract class BaseSyncExperimentRunner extends AbstractExperimentRunner implements IExperimentRunner {
 
     @Override
-    public void start(Logger logger, final ExperimentRunContext experimentRunContext, Experiment experiment) throws StaleExperimentRunContextException {
-        super.start(logger, experimentRunContext, experiment);
+    public void start(final ExperimentRunContext experimentRunContext, Experiment experiment) {
+        super.start(experimentRunContext, experiment);
 
         _init(experimentRunContext, experiment);
 
@@ -30,6 +29,6 @@ public abstract class BaseSyncExperimentRunner extends AbstractExperimentRunner 
         experimentRunContext.removeRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
 
         // End of the Experiment
-        mCurExperiment.complete(experimentRunContext);
+        mCurExperiment.end(experimentRunContext);
     }
 }

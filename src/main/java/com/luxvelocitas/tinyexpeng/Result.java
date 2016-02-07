@@ -7,19 +7,30 @@ import java.util.Date;
 
 
 public class Result extends MetadataObject {
+    protected Subject mSubject;
     protected TaskGroup mTaskGroup;
     protected Task mTask;
 
     protected Date mTimestamp;
     protected DataBundle mData;
 
-    public Result(TaskGroup taskGroup, Task task) {
+    public Result(Subject subject, TaskGroup taskGroup, Task task) {
         super();
+
+        mSubject = subject;
         mTaskGroup = taskGroup;
         mTask = task;
         mTimestamp = new Date();
 
         mData = new DataBundle();
+    }
+
+    public Subject getSubject() {
+        return mSubject;
+    }
+
+    public void setSubject(Subject subject) {
+        mSubject = subject;
     }
 
     public TaskGroup getTaskGroup() {

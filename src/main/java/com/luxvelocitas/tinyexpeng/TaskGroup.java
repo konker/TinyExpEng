@@ -2,18 +2,19 @@ package com.luxvelocitas.tinyexpeng;
 
 import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.datautils.MetadataObject;
-import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 
-public class TaskGroup extends MetadataObject {
+public class TaskGroup extends MetadataObject implements IRunnableItem {
     protected List<Task> mTasks;
     protected DataBundle mEventData;
+    protected boolean mEnded;
 
     public TaskGroup() {
         _init();
@@ -29,11 +30,30 @@ public class TaskGroup extends MetadataObject {
         setName(name);
     }
 
-    private void _init() {
-        setUuid();
-        mTasks = new ArrayList<Task>();
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
+    @Override
+    public void start(ExperimentRunContext experimentRunContext) {
+        mEnded = false;
+
+        // Broadcast the event to the run context
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
+    }
+
+    @Override
+    public void end(ExperimentRunContext experimentRunContext) {
+        mEnded = true;
+
+        // Broadcast the event to the run context
+        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
+    }
+
+    @Override
+    public boolean hasFsm() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnded() {
+        return mEnded;
     }
 
     public void add(Task task) {
@@ -80,20 +100,10 @@ public class TaskGroup extends MetadataObject {
        return mTasks.iterator();
     }
 
-    public void start(ExperimentRunContext experimentRunContext) {
-        // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
-    }
-
-    public void complete(ExperimentRunContext experimentRunContext) {
-        // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
-    }
-
-    public TaskGroup addResult(final ExperimentRunContext experimentRunContext, final Result result) throws DataException {
-        // Add the result to the experiment result set
-        experimentRunContext.addResult(result);
-
-        return this;
+    private void _init() {
+        setUuid();
+        mTasks = new ArrayList<Task>();
+        mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 }

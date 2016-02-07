@@ -4,9 +4,9 @@ import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.datautils.MetadataObject;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
-import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,15 +28,16 @@ import java.util.List;
  * @author Konrad Markus <konker@luxvelocitas.com>
  *
  */
-public class Experiment extends MetadataObject {
-    public static final String DATA_KEY_TARGET = "target";
-    public static final String DATA_KEY_PARENT = "parent";
+public class Experiment extends MetadataObject implements IRunnableItem {
+    public static final String DATA_KEY_TARGET = "__target__";
+    public static final String DATA_KEY_PARENT = "__parent__";
+    public static final String DATA_KEY_CONTEXT = "__experimentRunContext__";
 
     protected List<TaskGroup> mTaskGroups;
     protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;
 
-    protected boolean mStarted;
     protected DataBundle mEventData;
+    protected boolean mEnded;
 
     public Experiment() {
         _init();
@@ -52,32 +53,30 @@ public class Experiment extends MetadataObject {
         setName(name);
     }
 
-    /**
-     * Common initialization tasks
-     */
-    private void _init() {
-        setUuid();
-        mTaskGroups = new ArrayList<TaskGroup>();
-        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
-
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
-
-    }
-
-    public void start(ExperimentRunContext experimentRunContext) throws StaleExperimentRunContextException {
-        if (experimentRunContext.isEnded()) {
-            throw new StaleExperimentRunContextException();
-        }
-
-        mStarted = true;
+    @Override
+    public void start(ExperimentRunContext experimentRunContext) {
+        mEnded = false;
 
         // Broadcast the event to the run context
         experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
     }
 
-    public void complete(ExperimentRunContext experimentRunContext) {
+    @Override
+    public void end(ExperimentRunContext experimentRunContext) {
+        mEnded = true;
+
+        // Broadcast the event to the run context
         experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
+    }
+
+    @Override
+    public boolean hasFsm() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnded() {
+        return mEnded;
     }
 
     public void add(TaskGroup taskGroup) {
@@ -124,13 +123,6 @@ public class Experiment extends MetadataObject {
        return mTaskGroups.iterator();
     }
 
-    public Experiment addResult(final ExperimentRunContext experimentRunContext, final Result result) throws DataException {
-        // Add the result to the experiment result set
-        experimentRunContext.addResult(result);
-
-        return this;
-    }
-
     public void addEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
         mEventDispatcher.addListener(eventType, eventListener);
     }
@@ -141,5 +133,18 @@ public class Experiment extends MetadataObject {
 
     public void notifyEvent(ExperimentEvent eventType, DataBundle eventData) {
         mEventDispatcher.notify(eventType, eventData);
+    }
+
+    /**
+     * Common initialization tasks
+     */
+    private void _init() {
+        setUuid();
+        mTaskGroups = new ArrayList<TaskGroup>();
+        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
+
+        mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
+
     }
 }

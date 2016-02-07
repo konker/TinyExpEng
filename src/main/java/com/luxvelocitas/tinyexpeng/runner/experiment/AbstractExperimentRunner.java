@@ -4,7 +4,6 @@ import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.StaleExperimentRunContextException;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
@@ -12,7 +11,6 @@ import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunner;
 import com.luxvelocitas.tinyexpeng.runner.ISteppable;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
-import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -23,44 +21,43 @@ import java.util.List;
 public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner, ISteppable {
     protected Experiment mCurExperiment;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
-    protected List<ITaskGroupRunner> mTaskGroupRunners;
+    protected List<ITaskGroupRunner> mItemRunners;
 
     public AbstractExperimentRunner() {
         mAutoStep = true;
     }
 
     @Override
-    public void start(Logger logger, final ExperimentRunContext experimentRunContext, final Experiment experiment) throws StaleExperimentRunContextException {
-        mLogger = logger;
+    public void start(final ExperimentRunContext experimentRunContext, final Experiment experiment) {
         mCurExperiment = experiment;
     }
 
     @Override
     public void execute(final ExperimentRunContext experimentRunContext) {
         // Get the current task group according to the index
-        TaskGroup curTaskGroup = getCurTaskGroup(mCurExperiment);
+        TaskGroup curTaskGroup = getCurItem(mCurExperiment);
 
         // Get the appropriate TaskGroupRunner
-        ITaskGroupRunner taskGroupRunner = getCurTaskGroupRunner();
+        ITaskGroupRunner taskGroupRunner = getCurItemRunner();
 
         // Apply it to the current TaskGroup
-        taskGroupRunner.start(mLogger, experimentRunContext, curTaskGroup);
+        taskGroupRunner.start(experimentRunContext, curTaskGroup);
     }
 
     @Override
-    public IExperimentRunner setTaskGroupRunners(final List<ITaskGroupRunner> taskGroupRunners) {
-        mTaskGroupRunners = taskGroupRunners;
+    public IExperimentRunner setItemRunners(final List<ITaskGroupRunner> taskGroupRunners) {
+        mItemRunners = taskGroupRunners;
 
         return this;
     }
 
-    protected TaskGroup getCurTaskGroup(Experiment experiment) {
+    protected TaskGroup getCurItem(Experiment experiment) {
         return experiment.get(mIndex[mCurrentIndexPos]);
     }
 
-    protected ITaskGroupRunner getCurTaskGroupRunner() {
+    protected ITaskGroupRunner getCurItemRunner() {
         //[TODO: is this a good way?]
-        return mTaskGroupRunners.get(mIndex[mCurrentIndexPos]);
+        return mItemRunners.get(mIndex[mCurrentIndexPos]);
     }
 
     protected void _init(final ExperimentRunContext experimentRunContext, final Experiment experiment) {
