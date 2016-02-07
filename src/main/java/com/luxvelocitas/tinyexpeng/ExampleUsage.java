@@ -1,29 +1,52 @@
 package com.luxvelocitas.tinyexpeng;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.luxvelocitas.datautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
-import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummyResultDataSink;
-import com.luxvelocitas.tinyexpeng.data.dummy.csv.DummySubjectDataSink;
+import com.luxvelocitas.tinyexpeng.data.csv.CsvResultDataSink;
+import com.luxvelocitas.tinyexpeng.data.csv.CsvSubjectDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 import com.luxvelocitas.tinyexpeng.runner.experiment.FirstNThenRestRandomOrderSyncExperimentRunner;
 import com.luxvelocitas.tinyexpeng.runner.experiment.IExperimentRunner;
-import com.luxvelocitas.tinyexpeng.runner.taskgroup.*;
-import com.luxvelocitas.tinyexpeng.runner.experiment.SequentialSyncExperimentRunner;
+import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
+import com.luxvelocitas.tinyexpeng.runner.taskgroup.SequentialSyncTaskGroupRunner;
+import com.luxvelocitas.tinyfsm.ITinyStateMachine;
+import com.luxvelocitas.tinyfsm.TinyStateMachine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class App {
+
+public class ExampleUsage {
+    // Task FSM states
+    enum TaskState {
+        IDLE, STARTED, STEP1, STEP2, ENDED
+    };
+    enum TaskEvent {
+        STEP
+    }
+
     public static void main( String[] args ) {
-        final Logger logger = LoggerFactory.getLogger(App.class);
+        final Logger logger = LoggerFactory.getLogger(ExampleUsage.class);
+
+        // Create a Task FSM
+        ITinyStateMachine<TaskState,TaskEvent,DataBundle> taskFsm =
+                        new TinyStateMachine<TaskState,TaskEvent,DataBundle>(logger, TaskState.IDLE);
+        taskFsm
+           .transition(TaskState.IDLE,    TaskEvent.STEP, TaskState.STARTED)
+           .transition(TaskState.STARTED, TaskEvent.STEP, TaskState.STEP1)
+           .transition(TaskState.STEP1,   TaskEvent.STEP, TaskState.STEP2)
+           .transition(TaskState.STEP2,   TaskEvent.STEP, TaskState.ENDED)
+            ;
+        taskFsm.setDebugMode(true);
+
 
         // Create an experiment
         Experiment experiment1 = new Experiment("Exp1");
@@ -36,17 +59,22 @@ public class App {
         taskGroup1.getMetadata().putChar("BarC", 'K');
 
         // Create and add some tasks
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<1; i++) {
             Task t = new Task("t" + i);
             t.setName("Task " + i);
             t.getMetadata().putBoolean("QuxB", true);
             t.getDefinition().putInt("dummy_param", i);
+
+            t.addStateMachine(taskFsm, TaskState.ENDED);
+
             taskGroup1.add(t);
         }
 
         // Add the TaskGroup to the Experiment
         experiment1.add(taskGroup1);
 
+        /*[EG]
+        */
         // Create a TaskGroup
         TaskGroup taskGroup2 = new TaskGroup("tg-r1");
         taskGroup2.setName("Real Tasks");
@@ -56,6 +84,9 @@ public class App {
             Task t = new Task("r" + i);
             t.setName("Real Task " + i);
             t.getDefinition().putInt("dummy_param", i);
+
+            t.addStateMachine(taskFsm, TaskState.ENDED);
+
             taskGroup2.add(t);
         }
 
@@ -71,6 +102,9 @@ public class App {
             Task t = new Task("r" + i);
             t.setName("Real Task 2" + i);
             t.getDefinition().putInt("dummy_param", i);
+
+            t.addStateMachine(taskFsm, TaskState.ENDED);
+
             taskGroup3.add(t);
         }
 
@@ -91,6 +125,7 @@ public class App {
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Experiment target = (Experiment)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
                 System.out.println("Experiment End: " + target.getName());
+
                 //[TODO: print out result set]
             }
         });
@@ -115,27 +150,56 @@ public class App {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
-                TaskGroup parent = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_PARENT);
                 ExperimentRunContext experimentRunContext =
-                        (ExperimentRunContext)tinyEvent.getEventData().get("experimentRunContext");
-
+                        (ExperimentRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_CONTEXT);
                 System.out.println("\t\tTask start(" + Thread.currentThread().getId() + "): " + target.getName());
                 // HERE IS WHERE YOU WOULD ACTUAL PRESENT THE TASK, ETC
                 // ...
 
-                // create a dummy result
-                Result result = new Result(parent, target);
-                result.getData().putString("dummy_result", "FOO");
-
-                // finish the task
+                // Then, user input, etc. triggers state change in the Task until it ends
+                /*[EG]
                 try {
-                    experimentRunContext.addResult(result);
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(experimentRunContext, TaskEvent.STEP);
 
-                    target.complete(experimentRunContext, parent);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                catch (DataException ex) {
-                    ex.printStackTrace();
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(experimentRunContext, TaskEvent.STEP);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(experimentRunContext, TaskEvent.STEP);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(experimentRunContext, TaskEvent.STEP);
+                */
+
+                /*[EG]
+                */
+                // OR, just end the Task manually
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                target.end(experimentRunContext);
             }
         });
 
@@ -143,7 +207,28 @@ public class App {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
+                IRunContext experimentRunContext =
+                        (ExperimentRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_CONTEXT);
+
+                List<Subject> subjects = experimentRunContext.getSubjects();
+
+                /*[XXX: what to do here?]
+                TaskGroup parent = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_PARENT);
+                */
+
                 System.out.println("\t\tTask end: " + target.getName());
+
+                // create a dummy result
+                Result result = new Result(subjects.get(0), null, target);
+                result.getData().putString("dummy_result", "FOO");
+
+                // Add the result to the result set
+                try {
+                    experimentRunContext.addResult(result);
+                }
+                catch (DataException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -162,9 +247,15 @@ public class App {
         //taskGroupRunners1.add(new SequentialConcurrentTaskGroupRunner());
 
         // An Experiment runner which runs each task group sequentially
+        /*[EG]
+        IExperimentRunner experimentRunner1 =
+                new SequentialSyncExperimentRunner();
+        */
+        /*[EG]
+        */
         IExperimentRunner experimentRunner1 =
                 new FirstNThenRestRandomOrderSyncExperimentRunner(1);
-        experimentRunner1.setTaskGroupRunners(taskGroupRunners1);
+        experimentRunner1.setItemRunners(taskGroupRunners1);
 
         /*
         // -----------------------------------------------------------------------------
@@ -185,12 +276,14 @@ public class App {
         */
 
         // Create an ExperimentRunContext
+        String runId1 = "run1";
+        ExperimentRunContext experimentRunContext1 = new ExperimentRunContext();
+        experimentRunContext1.init(logger, experiment1, runId1);
+
+        // Create a Subject
         Subject subject1 = new Subject("subject1");
         subject1.setName("Subject 1");
         subject1.getData().putString("foo", "bar1");
-        String runId1 = "run1";
-        ExperimentRunContext experimentRunContext1 = new ExperimentRunContext(logger, experiment1, subject1, runId1);
-
         /*
         Subject subject2 = new Subject("subject2");
         subject2.setName("Subject 2");
@@ -206,10 +299,10 @@ public class App {
 
         try {
             // Create a pair of data sinks
-            IResultDataSink csvResultDataSink1 = new DummyResultDataSink();
+            IResultDataSink csvResultDataSink1 = new CsvResultDataSink();
             csvResultDataSink1.init("./", experimentRunContext1, experiment1);
 
-            ISubjectDataSink csvSubjectDataSink1 = new DummySubjectDataSink();
+            ISubjectDataSink csvSubjectDataSink1 = new CsvSubjectDataSink();
             csvSubjectDataSink1.init("./", experimentRunContext1, experiment1);
 
             // Add a pair of data sinks to the run context
@@ -217,10 +310,10 @@ public class App {
             experimentRunContext1.addSubjectDataSink(csvSubjectDataSink1);
 
             // Write Subject data to the data sink
-            experimentRunContext1.writeSubjectData();
+            experimentRunContext1.addSubject(subject1);
 
             // Run the experiment
-            experimentRunner1.start(logger, experimentRunContext1, experiment1);
+            experimentRunner1.start(experimentRunContext1, experiment1);
 
             /*
             // Create a pair of data sinks
@@ -243,12 +336,12 @@ public class App {
             // Try to run the experiment again (should fail)
             experimentRunner1.start(experimentRunContext2);
             */
+
+            // Close the data sinks
+            experimentRunContext1.closeDataSinks();
         }
         catch (DataException ex1) {
             ex1.printStackTrace();
-        }
-        catch (StaleExperimentRunContextException ex) {
-            ex.printStackTrace();
         }
 
         /*[XXX: needs further work]
