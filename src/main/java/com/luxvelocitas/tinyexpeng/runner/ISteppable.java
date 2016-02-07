@@ -7,6 +7,8 @@ public interface ISteppable {
     void nextStep(final ExperimentRunContext experimentRunContext);
     void finalStep(final ExperimentRunContext experimentRunContext);
 
-    boolean isAutoStep();
-    void setAutoStep(boolean autoStep);
+    /*[XXX: remove from public interface]
+    boolean _isAutoStep();
+    void _setAutoStep(boolean autoStep);
+    */
 }

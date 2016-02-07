@@ -1,28 +1,15 @@
 package com.luxvelocitas.tinyexpeng.runner;
 
-import org.slf4j.Logger;
-
 /**
  */
 public abstract class AbstractRunner implements IRunner, ISteppable {
     protected static final int START_INDEX = -1;
 
-    protected Logger mLogger;
     protected int mCurrentIndexPos;
     protected int[] mIndex;
     protected int mNumToExecute;
     protected int mNumExecuted;
     protected boolean mAutoStep;
-
-    @Override
-    public boolean isAutoStep() {
-        return mAutoStep;
-    }
-
-    @Override
-    public void setAutoStep(boolean autoStep) {
-        mAutoStep = autoStep;
-    }
 
     @Override
     public boolean hasStep() {
@@ -37,7 +24,7 @@ public abstract class AbstractRunner implements IRunner, ISteppable {
             mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
             execute(experimentRunContext);
 
-            if (isAutoStep()) {
+            if (_isAutoStep()) {
                 nextStep(experimentRunContext);
             }
         }
@@ -59,5 +46,13 @@ public abstract class AbstractRunner implements IRunner, ISteppable {
     @Override
     public int getFirstIndexPos(int currentIndexPos) {
         return 0;
+    }
+
+    protected boolean _isAutoStep() {
+        return mAutoStep;
+    }
+
+    protected void _setAutoStep(boolean autoStep) {
+        mAutoStep = autoStep;
     }
 }
