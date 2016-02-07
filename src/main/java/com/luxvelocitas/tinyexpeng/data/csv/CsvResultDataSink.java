@@ -25,9 +25,11 @@ public class CsvResultDataSink implements IResultDataSink {
         "SubjectUUID",
         "SubjectId",
         "SubjectName",
+        /*[XXX: remove?]
         "TaskGroupUUID",
         "TaskGroupId",
         "TaskGroupName",
+        */
         "TaskUUID",
         "TaskId",
         "TaskName"
@@ -91,7 +93,7 @@ public class CsvResultDataSink implements IResultDataSink {
         String fileName =
                     "result-" +
                     mExperiment.getId() + "-" +
-                    mExperimentRunContext.getSubject().getId() + "-" +
+                    //mExperimentRunContext.getSubject().getId() + "-" +
                     mExperimentRunContext.getRunId() + "-" +
                     (new Date()).getTime() +
                     ".csv";
@@ -122,19 +124,35 @@ public class CsvResultDataSink implements IResultDataSink {
         row.add(mExperiment.getName());
 
         // Subject data
-        row.add(mExperimentRunContext.getSubject().getUuid());
-        row.add(String.valueOf(mExperimentRunContext.getSubject().getId()));
-        row.add(mExperimentRunContext.getSubject().getName());
+        row.add(result.getSubject().getUuid());
+        row.add(String.valueOf(result.getSubject().getId()));
+        row.add(result.getSubject().getName());
 
+        /*[XXX: remove?]
         // TaskGroup data
-        row.add(result.getTaskGroup().getUuid());
-        row.add(String.valueOf(result.getTaskGroup().getId()));
-        row.add(result.getTaskGroup().getName());
+        if (result.getTaskGroup() == null) {
+            row.add(null);
+            row.add(null);
+            row.add(null);
+        }
+        else {
+            row.add(result.getTaskGroup().getUuid());
+            row.add(String.valueOf(result.getTaskGroup().getId()));
+            row.add(result.getTaskGroup().getName());
+        }
+        */
 
         // Task data
-        row.add(result.getTask().getUuid());
-        row.add(String.valueOf(result.getTask().getId()));
-        row.add(result.getTask().getName());
+        if (result.getTask() == null) {
+            row.add(null);
+            row.add(null);
+            row.add(null);
+        }
+        else {
+            row.add(result.getTask().getUuid());
+            row.add(String.valueOf(result.getTask().getId()));
+            row.add(result.getTask().getName());
+        }
 
         // Custom data fields.
         // If we have custom fields specified, use those;

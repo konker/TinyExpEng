@@ -17,6 +17,7 @@ import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
 
 public class CsvSubjectDataSink implements ISubjectDataSink {
     public static final String[] BASIC_FIELD_NAMES = {
+        "Timestamp",
         "ExperimentUUID",
         "ExperimentId",
         "ExperimentName",
@@ -85,7 +86,7 @@ public class CsvSubjectDataSink implements ISubjectDataSink {
         String fileName =
                     "subject-" +
                     mExperiment.getId() + "-" +
-                    mExperimentRunContext.getSubject().getId() + "-" +
+                    //mExperimentRunContext.getSubject().getId() + "-" +
                     mExperimentRunContext.getRunId() + "-" +
                     (new Date()).getTime() +
                     ".csv";
@@ -106,15 +107,18 @@ public class CsvSubjectDataSink implements ISubjectDataSink {
     protected String[] getSubjectRow(Subject subject) {
         List<String> row = new ArrayList<String>();
 
+        // Timestamp
+        row.add(String.valueOf((new Date()).getTime()));
+
         // Experiment data
         row.add(mExperiment.getUuid());
         row.add(String.valueOf(mExperiment.getId()));
         row.add(mExperiment.getName());
 
         // Subject data
-        row.add(String.valueOf(mExperimentRunContext.getSubject().getUuid()));
-        row.add(String.valueOf(mExperimentRunContext.getSubject().getId()));
-        row.add(mExperimentRunContext.getSubject().getName());
+        row.add(String.valueOf(subject.getUuid()));
+        row.add(String.valueOf(subject.getId()));
+        row.add(subject.getName());
 
         row.add(mExperimentRunContext.getRunId());
 
