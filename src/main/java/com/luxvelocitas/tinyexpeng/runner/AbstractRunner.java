@@ -23,8 +23,6 @@ public abstract class AbstractRunner implements IRunner {
             // Start the next task group
             mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
             execute(experimentRunContext);
-
-            nextStep(experimentRunContext);
         }
         else {
             finalStep(experimentRunContext);

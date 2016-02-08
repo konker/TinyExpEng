@@ -69,6 +69,8 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 mNumExecuted++;
+
+                nextStep(experimentRunContext);
             }
         };
         experimentRunContext.addRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
