@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.data.dummy;
 
-import com.luxvelocitas.datautils.DummyOutputStream;
+import com.luxvelocitas.tinydatautils.DummyOutputStream;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.Result;
 import com.luxvelocitas.tinyexpeng.data.DataException;

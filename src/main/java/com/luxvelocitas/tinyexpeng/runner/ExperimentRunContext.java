@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.runner;
 
-import com.luxvelocitas.datautils.DataBundle;
+import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyevent.TinyEvent;

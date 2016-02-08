@@ -1,7 +1,7 @@
 package com.luxvelocitas.tinyexpeng;
 
-import com.luxvelocitas.datautils.DataBundle;
-import com.luxvelocitas.datautils.MetadataObject;
+import com.luxvelocitas.tinydatautils.DataBundle;
+import com.luxvelocitas.tinydatautils.MetadataObject;
 
 import java.util.Date;
 

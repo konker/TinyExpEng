@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.runner.taskgroup;
 
-import com.luxvelocitas.datautils.Util;
+import com.luxvelocitas.tinydatautils.Util;
 
 
 public class RandomOrderSyncTaskGroupRunner extends SequentialSyncTaskGroupRunner implements ITaskGroupRunner {

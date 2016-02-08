@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.runner.experiment;
 
-import com.luxvelocitas.datautils.Util;
+import com.luxvelocitas.tinydatautils.Util;
 import com.luxvelocitas.tinyexpeng.runner.IRunner;
 
 /**
