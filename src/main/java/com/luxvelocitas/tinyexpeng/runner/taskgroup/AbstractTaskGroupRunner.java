@@ -31,7 +31,7 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
         // Check that the previous Task has been finished before proceeding
         if (mCurTask != null) {
             if (!mCurTask.isEnded()) {
-                throw new TaskNotEndedException("Attempt to start Task before the previous Task has ended");
+                throw new TaskNotEndedException("Attempt to start Task before the previous Task has ended: " + mCurTask.getName());
             }
         }
 
