@@ -2,9 +2,7 @@ package com.luxvelocitas.tinyexpeng.runner;
 
 import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
-import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.Result;
-import com.luxvelocitas.tinyexpeng.Subject;
+import com.luxvelocitas.tinyexpeng.*;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
@@ -30,6 +28,12 @@ public interface IRunContext {
     List<Subject> getSubjects();
 
     IRunContext closeDataSinks() throws DataException;
+
+    Experiment getExperiment();
+    TaskGroup getCurrentTaskGroup();
+    void setCurrentTaskGroup(TaskGroup taskGroup);
+    Task getCurrentTask();
+    void setCurrentTask(Task task);
 
     IRunContext addRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener);
     IRunContext removeRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener);

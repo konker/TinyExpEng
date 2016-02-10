@@ -4,9 +4,7 @@ import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyevent.TinyEvent;
-import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.Result;
-import com.luxvelocitas.tinyexpeng.Subject;
+import com.luxvelocitas.tinyexpeng.*;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
@@ -24,6 +22,8 @@ public class ExperimentRunContext implements IRunContext {
     protected String mRunId;
     protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDistpatcher;
     private Experiment mExperiment;
+    private TaskGroup mCurrentTaskGroup;
+    private Task mCurrentTask;
 
     protected final List<Subject> mSubjects;
     protected final Set<IResultDataSink> mResultDataSinks;
@@ -142,7 +142,7 @@ public class ExperimentRunContext implements IRunContext {
     @Override
     public IRunContext notifyRunContextEvent(ExperimentEvent eventType, DataBundle eventData) {
         // Also forward this event to the Experiment
-        eventData.put(Experiment.DATA_KEY_CONTEXT, this);
+        eventData.put(Experiment.DATA_KEY_RUN_CONTEXT, this);
         mExperiment.notifyEvent(eventType, eventData);
 
         // Dispatch to all our listeners
@@ -164,6 +164,31 @@ public class ExperimentRunContext implements IRunContext {
         }
 
         return this;
+    }
+
+    @Override
+    public Experiment getExperiment() {
+        return mExperiment;
+    }
+
+    @Override
+    public TaskGroup getCurrentTaskGroup() {
+        return mCurrentTaskGroup;
+    }
+
+    @Override
+    public void setCurrentTaskGroup(TaskGroup taskGroup) {
+        mCurrentTaskGroup = taskGroup;
+    }
+
+    @Override
+    public Task getCurrentTask() {
+        return mCurrentTask;
+    }
+
+    @Override
+    public void setCurrentTask(Task task) {
+        mCurrentTask = task;
     }
 
     protected void _start() {
