@@ -9,7 +9,6 @@ public abstract class AbstractRunner implements IRunner {
     protected int[] mIndex;
     protected int mNumToExecute;
     protected int mNumExecuted;
-    protected boolean mAutoStep;
 
     @Override
     public boolean hasStep() {
@@ -17,15 +16,15 @@ public abstract class AbstractRunner implements IRunner {
     }
 
     @Override
-    public void nextStep(ExperimentRunContext experimentRunContext) {
+    public void nextStep(IRunContext runContext) {
         // Get the
         if (hasStep()) {
             // Start the next task group
             mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
-            execute(experimentRunContext);
+            execute(runContext);
         }
         else {
-            finalStep(experimentRunContext);
+            finalStep(runContext);
         }
     }
 

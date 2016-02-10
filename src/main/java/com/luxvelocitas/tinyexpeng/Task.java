@@ -3,7 +3,7 @@ package com.luxvelocitas.tinyexpeng;
 import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinydatautils.MetadataObject;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 import com.luxvelocitas.tinyfsm.ITinyStateMachine;
 
@@ -34,7 +34,7 @@ public class Task extends MetadataObject implements IRunnableItem {
     }
 
     @Override
-    public void start(ExperimentRunContext experimentRunContext) {
+    public void start(IRunContext runContext) {
         if (mStateMachine != null) {
             mStateMachine.restart();
         }
@@ -42,15 +42,15 @@ public class Task extends MetadataObject implements IRunnableItem {
         mEnded = false;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_START, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.TASK_START, mEventData);
     }
 
     @Override
-    public void end(ExperimentRunContext experimentRunContext) {
+    public void end(IRunContext runContext) {
         mEnded = true;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_END, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.TASK_END, mEventData);
     }
 
     @Override
@@ -69,11 +69,11 @@ public class Task extends MetadataObject implements IRunnableItem {
         return this;
     }
 
-    public void triggerState(ExperimentRunContext experimentRunContext, Enum eventType) {
+    public void triggerState(IRunContext runContext, Enum eventType) {
         mStateMachine.trigger(eventType);
         if (mStateMachine.getCurrentState().equals(mTerminalState)) {
             // End the Task
-            end(experimentRunContext);
+            end(runContext);
         }
     }
 
@@ -87,13 +87,4 @@ public class Task extends MetadataObject implements IRunnableItem {
         mEventData = new DataBundle();
         mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
-
-    /*[XXX: remove? ]
-    public Task addResult(final ExperimentRunContext experimentRunContext, final Result result) throws DataException {
-        // Add the result to the experiment result set
-        experimentRunContext.addResult(result);
-
-        return this;
-    }
-     */
 }

@@ -6,7 +6,10 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.*;
+import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunner;
+import com.luxvelocitas.tinyexpeng.runner.TaskNotEndedException;
 
 
 /**
@@ -17,17 +20,13 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
     protected Task mCurTask;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
 
-    public AbstractTaskGroupRunner() {
-        mAutoStep = true;
-    }
-
     @Override
-    public void start(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
+    public void start(final IRunContext runContext, final TaskGroup taskGroup) {
         mCurTaskGroup = taskGroup;
     }
 
     @Override
-    public void execute(final ExperimentRunContext experimentRunContext) {
+    public void execute(final IRunContext runContext) {
         // Check that the previous Task has been finished before proceeding
         if (mCurTask != null) {
             if (!mCurTask.isEnded()) {
@@ -37,25 +36,27 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
 
         // Get the current Task according to the index and start it
         mCurTask = getCurItem(mCurTaskGroup);
+        runContext.setCurrentTask(mCurTask);
 
         // Start the current Task
-        mCurTask.start(experimentRunContext);
+        mCurTask.start(runContext);
     }
 
     protected Task getCurItem(TaskGroup taskGroup) {
         return taskGroup.get(mIndex[mCurrentIndexPos]);
     }
 
-    protected void _init(final ExperimentRunContext experimentRunContext, final TaskGroup taskGroup) {
+    protected void _init(final IRunContext runContext, final TaskGroup taskGroup) {
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 mNumExecuted++;
+                runContext.setCurrentTask(null);
 
-                nextStep(experimentRunContext);
+                nextStep(runContext);
             }
         };
-        experimentRunContext.addRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
+        runContext.addRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
 
         mNumToExecute = taskGroup.size();
         mNumExecuted = 0;

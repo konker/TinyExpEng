@@ -150,56 +150,56 @@ public class ExampleUsage {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
-                ExperimentRunContext experimentRunContext =
-                        (ExperimentRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_CONTEXT);
+                IRunContext runContext =
+                        (IRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_RUN_CONTEXT);
                 System.out.println("\t\tTask start(" + Thread.currentThread().getId() + "): " + target.getName());
                 // HERE IS WHERE YOU WOULD ACTUAL PRESENT THE TASK, ETC
                 // ...
 
                 // Then, user input, etc. triggers state change in the Task until it ends
                 /*[EG]
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(experimentRunContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(experimentRunContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(experimentRunContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(experimentRunContext, TaskEvent.STEP);
                 */
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(runContext, TaskEvent.STEP);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(runContext, TaskEvent.STEP);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(runContext, TaskEvent.STEP);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("\t\t\tTask State: " + target.getCurrentState());
+                target.triggerState(runContext, TaskEvent.STEP);
 
                 /*[EG]
-                */
                 // OR, just end the Task manually
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                target.end(experimentRunContext);
+                target.end(runContext);
+                */
             }
         });
 
@@ -207,10 +207,10 @@ public class ExampleUsage {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
-                IRunContext experimentRunContext =
-                        (ExperimentRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_CONTEXT);
+                IRunContext runContext =
+                        (IRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_RUN_CONTEXT);
 
-                List<Subject> subjects = experimentRunContext.getSubjects();
+                List<Subject> subjects = runContext.getSubjects();
 
                 /*[XXX: what to do here?]
                 TaskGroup parent = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_PARENT);
@@ -224,7 +224,7 @@ public class ExampleUsage {
 
                 // Add the result to the result set
                 try {
-                    experimentRunContext.addResult(result);
+                    runContext.addResult(result);
                 }
                 catch (DataException ex) {
                     ex.printStackTrace();
@@ -275,10 +275,10 @@ public class ExampleUsage {
         IExperimentRunner experimentRunner2 = new SimpleExperimentRunner(taskGroupRunner2);
         */
 
-        // Create an ExperimentRunContext
+        // Create an IRunContext
         String runId1 = "run1";
-        ExperimentRunContext experimentRunContext1 = new ExperimentRunContext();
-        experimentRunContext1.init(logger, experiment1, runId1);
+        IRunContext runContext1 = new ExperimentRunContext();
+        runContext1.init(logger, experiment1, runId1);
 
         // Create a Subject
         Subject subject1 = new Subject("subject1");
@@ -289,31 +289,31 @@ public class ExampleUsage {
         subject2.setName("Subject 2");
         subject2.getData().putString("foo", "bar2");
         String runId2 = "run2";
-        ExperimentRunContext experimentRunContext2 = new ExperimentRunContext(experiment1, subject2, runId2);
+        IRunContext runContext2 = new ExperimentRunContext(experiment1, subject2, runId2);
 
         Subject subject3 = new Subject();
         subject3.setName("Subject 3");
         String runId3 = "run3";
-        ExperimentRunContext experimentRunContext3 = new ExperimentRunContext(experiment1, subject3, runId3);
+        IRunContext runContext3 = new ExperimentRunContext(experiment1, subject3, runId3);
         */
 
         try {
             // Create a pair of data sinks
             IResultDataSink csvResultDataSink1 = new CsvResultDataSink();
-            csvResultDataSink1.init("./", experimentRunContext1, experiment1);
+            csvResultDataSink1.init("./", runContext1, experiment1);
 
             ISubjectDataSink csvSubjectDataSink1 = new CsvSubjectDataSink();
-            csvSubjectDataSink1.init("./", experimentRunContext1, experiment1);
+            csvSubjectDataSink1.init("./", runContext1, experiment1);
 
             // Add a pair of data sinks to the run context
-            experimentRunContext1.addResultDataSink(csvResultDataSink1);
-            experimentRunContext1.addSubjectDataSink(csvSubjectDataSink1);
+            runContext1.addResultDataSink(csvResultDataSink1);
+            runContext1.addSubjectDataSink(csvSubjectDataSink1);
 
             // Write Subject data to the data sink
-            experimentRunContext1.addSubject(subject1);
+            runContext1.addSubject(subject1);
 
             // Run the experiment
-            experimentRunner1.start(experimentRunContext1, experiment1);
+            experimentRunner1.start(runContext1, experiment1);
 
             /*
             // Create a pair of data sinks
@@ -321,24 +321,24 @@ public class ExampleUsage {
             ISubjectDataSink csvSubjectDataSink2 = new CsvSubjectDataSink("./");
 
             // Add a data sink to the run context
-            experimentRunContext2.addResultDataSink(csvResultDataSink2);
-            experimentRunContext2.addSubjectDataSink(csvSubjectDataSink2);
+            runContext2.addResultDataSink(csvResultDataSink2);
+            runContext2.addSubjectDataSink(csvSubjectDataSink2);
 
             // Write Subject data to the data sink
-            experimentRunContext2.writeSubjectData();
+            runContext2.writeSubjectData();
 
             // Try to run the experiment again
-            experimentRunner1.start(experimentRunContext2);
+            experimentRunner1.start(runContext2);
 
             // Try to run the experiment again
-            experimentRunner2.start(experimentRunContext3);
+            experimentRunner2.start(runContext3);
 
             // Try to run the experiment again (should fail)
-            experimentRunner1.start(experimentRunContext2);
+            experimentRunner1.start(runContext2);
             */
 
             // Close the data sinks
-            experimentRunContext1.closeDataSinks();
+            runContext1.closeDataSinks();
         }
         catch (DataException ex1) {
             ex1.printStackTrace();

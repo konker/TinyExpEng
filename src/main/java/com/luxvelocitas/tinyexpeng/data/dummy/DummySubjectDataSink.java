@@ -5,7 +5,7 @@ import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.Subject;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class DummySubjectDataSink implements ISubjectDataSink {
         "RunId"
     };
 
-    private ExperimentRunContext mExperimentRunContext;
+    private IRunContext mRunContext;
     private Experiment mExperiment;
 
     OutputStream mOutputStream;
@@ -44,9 +44,9 @@ public class DummySubjectDataSink implements ISubjectDataSink {
     }
 
     @Override
-    public void init(String dataDir, ExperimentRunContext experimentRunContext, Experiment experiment) throws DataException {
+    public void init(String dataDir, IRunContext runContext, Experiment experiment) throws DataException {
         mDataDir = dataDir;
-        mExperimentRunContext = experimentRunContext;
+        mRunContext = runContext;
         mExperiment = experiment;
 
         // Create a writer with filename composed of args
@@ -91,8 +91,8 @@ public class DummySubjectDataSink implements ISubjectDataSink {
         String fileName =
                     "subject-" +
                     mExperiment.getId() + "-" +
-                    //mExperimentRunContext.getSubject().getId() + "-" +
-                    mExperimentRunContext.getRunId() + "-" +
+                    //mRunContext.getSubject().getId() + "-" +
+                    mRunContext.getRunId() + "-" +
                     (new Date()).getTime() +
                     ".csv";
         return (new File(mDataDir, fileName)).getAbsolutePath();
@@ -125,7 +125,7 @@ public class DummySubjectDataSink implements ISubjectDataSink {
         row.add(String.valueOf(subject.getId()));
         row.add(subject.getName());
 
-        row.add(mExperimentRunContext.getRunId());
+        row.add(mRunContext.getRunId());
 
         // Custom data fields.
         // If we have custom fields specified, use those;

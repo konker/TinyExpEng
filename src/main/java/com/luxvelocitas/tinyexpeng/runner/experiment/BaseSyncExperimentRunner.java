@@ -2,8 +2,7 @@ package com.luxvelocitas.tinyexpeng.runner.experiment;
 
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
-import org.slf4j.Logger;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 
 /**
  * @author Konrad Markus <konker@luxvelocitas.com>
@@ -12,23 +11,23 @@ import org.slf4j.Logger;
 public abstract class BaseSyncExperimentRunner extends AbstractExperimentRunner implements IExperimentRunner {
 
     @Override
-    public void start(final ExperimentRunContext experimentRunContext, Experiment experiment) {
-        super.start(experimentRunContext, experiment);
+    public void start(final IRunContext runContext, Experiment experiment) {
+        super.start(runContext, experiment);
 
-        _init(experimentRunContext, experiment);
+        _init(runContext, experiment);
 
         // Start the Experiment
-        mCurExperiment.start(experimentRunContext);
+        mCurExperiment.start(runContext);
 
         // Process the TaskGroups
-        nextStep(experimentRunContext);
+        nextStep(runContext);
     }
 
     @Override
-    public void finalStep(ExperimentRunContext experimentRunContext) {
-        experimentRunContext.removeRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
+    public void finalStep(IRunContext runContext) {
+        runContext.removeRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
 
         // End of the Experiment
-        mCurExperiment.end(experimentRunContext);
+        mCurExperiment.end(runContext);
     }
 }

@@ -6,7 +6,10 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.*;
+import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunner;
+import com.luxvelocitas.tinyexpeng.runner.TaskGroupNotEndedException;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
 
 import java.util.List;
@@ -21,17 +24,13 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
     protected List<ITaskGroupRunner> mItemRunners;
 
-    public AbstractExperimentRunner() {
-        mAutoStep = true;
-    }
-
     @Override
-    public void start(final ExperimentRunContext experimentRunContext, final Experiment experiment) {
+    public void start(final IRunContext runContext, final Experiment experiment) {
         mCurExperiment = experiment;
     }
 
     @Override
-    public void execute(final ExperimentRunContext experimentRunContext) {
+    public void execute(final IRunContext runContext) {
         // Check that the previous Task has been finished before proceeding
         if (mCurTaskGroup != null) {
             if (!mCurTaskGroup.isEnded()) {
@@ -40,12 +39,13 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
         }
         // Get the current task group according to the index
         mCurTaskGroup = getCurItem(mCurExperiment);
+        runContext.setCurrentTaskGroup(mCurTaskGroup);
 
         // Get the appropriate TaskGroupRunner
         ITaskGroupRunner taskGroupRunner = getCurItemRunner();
 
         // Apply it to the current TaskGroup
-        taskGroupRunner.start(experimentRunContext, mCurTaskGroup);
+        taskGroupRunner.start(runContext, mCurTaskGroup);
     }
 
     @Override
@@ -64,16 +64,17 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
         return mItemRunners.get(mIndex[mCurrentIndexPos]);
     }
 
-    protected void _init(final ExperimentRunContext experimentRunContext, final Experiment experiment) {
+    protected void _init(final IRunContext runContext, final Experiment experiment) {
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
             public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
                 mNumExecuted++;
+                runContext.setCurrentTaskGroup(null);
 
-                nextStep(experimentRunContext);
+                nextStep(runContext);
             }
         };
-        experimentRunContext.addRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
+        runContext.addRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
 
         mNumToExecute = experiment.size();
         mNumExecuted = 0;

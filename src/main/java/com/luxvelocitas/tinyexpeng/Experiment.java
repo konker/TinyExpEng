@@ -5,7 +5,7 @@ import com.luxvelocitas.tinydatautils.MetadataObject;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.List;
 public class Experiment extends MetadataObject implements IRunnableItem {
     public static final String DATA_KEY_TARGET = "__target__";
     public static final String DATA_KEY_PARENT = "__parent__";
-    public static final String DATA_KEY_CONTEXT = "__experimentRunContext__";
+    public static final String DATA_KEY_RUN_CONTEXT = "__runContext__";
 
     protected List<TaskGroup> mTaskGroups;
     protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;
@@ -54,19 +54,19 @@ public class Experiment extends MetadataObject implements IRunnableItem {
     }
 
     @Override
-    public void start(ExperimentRunContext experimentRunContext) {
+    public void start(IRunContext runContext) {
         mEnded = false;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
     }
 
     @Override
-    public void end(ExperimentRunContext experimentRunContext) {
+    public void end(IRunContext runContext) {
         mEnded = true;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
     }
 
     @Override

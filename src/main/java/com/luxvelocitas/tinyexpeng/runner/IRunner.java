@@ -4,7 +4,7 @@ package com.luxvelocitas.tinyexpeng.runner;
  */
 public interface IRunner {
     /** Perform one execute tick */
-    void execute(final ExperimentRunContext experimentRunContext);
+    void execute(final IRunContext runContext);
 
     /** Initialize the index */
     int[] initIndex(int numToExecute);
@@ -17,7 +17,7 @@ public interface IRunner {
 
     boolean hasStep();
 
-    void nextStep(final ExperimentRunContext experimentRunContext);
+    void nextStep(final IRunContext runContext);
 
-    void finalStep(final ExperimentRunContext experimentRunContext);
+    void finalStep(final IRunContext runContext);
 }

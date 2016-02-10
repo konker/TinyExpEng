@@ -3,7 +3,7 @@ package com.luxvelocitas.tinyexpeng;
 import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinydatautils.MetadataObject;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 
 import java.util.ArrayList;
@@ -31,19 +31,19 @@ public class TaskGroup extends MetadataObject implements IRunnableItem {
     }
 
     @Override
-    public void start(ExperimentRunContext experimentRunContext) {
+    public void start(IRunContext runContext) {
         mEnded = false;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
     }
 
     @Override
-    public void end(ExperimentRunContext experimentRunContext) {
+    public void end(IRunContext runContext) {
         mEnded = true;
 
         // Broadcast the event to the run context
-        experimentRunContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
+        runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
     }
 
     @Override

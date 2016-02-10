@@ -1,18 +1,18 @@
 package com.luxvelocitas.tinyexpeng.data.csv;
 
+import au.com.bytecode.opencsv.CSVWriter;
+import com.luxvelocitas.tinyexpeng.Experiment;
+import com.luxvelocitas.tinyexpeng.Result;
+import com.luxvelocitas.tinyexpeng.data.DataException;
+import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
+import com.luxvelocitas.tinyexpeng.runner.IRunContext;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import au.com.bytecode.opencsv.CSVWriter;
-import com.luxvelocitas.tinyexpeng.Experiment;
-import com.luxvelocitas.tinyexpeng.runner.ExperimentRunContext;
-import com.luxvelocitas.tinyexpeng.Result;
-import com.luxvelocitas.tinyexpeng.data.DataException;
-import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 
 
 public class CsvResultDataSink implements IResultDataSink {
@@ -35,7 +35,7 @@ public class CsvResultDataSink implements IResultDataSink {
         "TaskName"
     };
 
-    private ExperimentRunContext mExperimentRunContext;
+    private IRunContext mRunContext;
     private Experiment mExperiment;
 
     private String mResultFileName;
@@ -52,9 +52,9 @@ public class CsvResultDataSink implements IResultDataSink {
     }
 
     @Override
-    public void init(String dataDir, ExperimentRunContext experimentRunContext, Experiment experiment) throws DataException {
+    public void init(String dataDir, IRunContext runContext, Experiment experiment) throws DataException {
         mDataDir = dataDir;
-        mExperimentRunContext = experimentRunContext;
+        mRunContext = runContext;
         mExperiment = experiment;
 
         try {
@@ -93,8 +93,8 @@ public class CsvResultDataSink implements IResultDataSink {
         String fileName =
                     "result-" +
                     mExperiment.getId() + "-" +
-                    //mExperimentRunContext.getSubject().getId() + "-" +
-                    mExperimentRunContext.getRunId() + "-" +
+                    //mRunContext.getSubject().getId() + "-" +
+                    mRunContext.getRunId() + "-" +
                     (new Date()).getTime() +
                     ".csv";
         return (new File(mDataDir, fileName)).getAbsolutePath();
@@ -116,7 +116,7 @@ public class CsvResultDataSink implements IResultDataSink {
 
         // Basic data
         row.add(String.valueOf(result.getTimestamp().getTime()));
-        row.add(mExperimentRunContext.getRunId());
+        row.add(mRunContext.getRunId());
 
         // Experiment data
         row.add(mExperiment.getUuid());
