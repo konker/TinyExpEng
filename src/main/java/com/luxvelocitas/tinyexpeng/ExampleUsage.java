@@ -25,6 +25,9 @@ import java.util.List;
 
 
 public class ExampleUsage {
+    // Task custom fields
+    public static final String[] TASK_CUSTOM_FIELDS = { "dummy_result" };
+
     // Task FSM states
     enum TaskState {
         IDLE, STARTED, STEP1, STEP2, ENDED
@@ -296,10 +299,10 @@ public class ExampleUsage {
         try {
             // Create a pair of data sinks
             IResultDataSink csvResultDataSink1 = new CsvResultDataSink();
-            csvResultDataSink1.init("./", runContext1, experiment1);
+            csvResultDataSink1.init("./", runContext1, experiment1, TASK_CUSTOM_FIELDS);
 
             ISubjectDataSink csvSubjectDataSink1 = new CsvSubjectDataSink();
-            csvSubjectDataSink1.init("./", runContext1, experiment1);
+            csvSubjectDataSink1.init("./", runContext1, experiment1, null);
 
             // Add a pair of data sinks to the run context
             runContext1.addResultDataSink(csvResultDataSink1);

@@ -33,21 +33,20 @@ public class CsvSubjectDataSink implements ISubjectDataSink {
     private String mSubjectFileName;
     private CSVWriter mSubjectWriter;
     private String mDataDir;
-    private final String[] mCustomFieldNames;
-
-    public CsvSubjectDataSink(String[] customFieldNames) {
-        mCustomFieldNames = customFieldNames;
-    }
-
-    public CsvSubjectDataSink() {
-        mCustomFieldNames = new String[0];
-    }
+    private String[] mCustomFieldNames;
 
     @Override
-    public void init(String dataDir, IRunContext runContext, Experiment experiment) throws DataException {
+    public void init(String dataDir, IRunContext runContext, Experiment experiment, String[] customFieldNames) throws DataException {
         mDataDir = dataDir;
         mRunContext = runContext;
         mExperiment = experiment;
+
+        if (customFieldNames != null) {
+            mCustomFieldNames = customFieldNames;
+        }
+        else {
+            mCustomFieldNames = new String[0];
+        }
 
         // Create a writer with filename composed of args
         try {

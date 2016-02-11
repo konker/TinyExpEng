@@ -39,21 +39,20 @@ public class CsvResultDataSink implements IResultDataSink {
     private String mResultFileName;
     private CSVWriter mResultWriter;
     private String mDataDir;
-    private final String[] mCustomFieldNames;
-
-    public CsvResultDataSink(String[] customFieldNames) {
-        mCustomFieldNames = customFieldNames;
-    }
-
-    public CsvResultDataSink() {
-        mCustomFieldNames = new String[0];
-    }
+    private String[] mCustomFieldNames;
 
     @Override
-    public void init(String dataDir, IRunContext runContext, Experiment experiment) throws DataException {
+    public void init(String dataDir, IRunContext runContext, Experiment experiment, String[] customFieldNames) throws DataException {
         mDataDir = dataDir;
         mRunContext = runContext;
         mExperiment = experiment;
+
+        if (customFieldNames != null) {
+            mCustomFieldNames = customFieldNames;
+        }
+        else {
+            mCustomFieldNames = new String[0];
+        }
 
         try {
             mResultFileName = getResultFileName(mDataDir);
