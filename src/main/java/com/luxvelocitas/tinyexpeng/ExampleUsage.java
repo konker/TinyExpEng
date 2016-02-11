@@ -212,10 +212,6 @@ public class ExampleUsage {
 
                 List<Subject> subjects = runContext.getSubjects();
 
-                /*[XXX: what to do here?]
-                TaskGroup parent = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_PARENT);
-                */
-
                 System.out.println("\t\tTask end: " + target.getName());
 
                 // create a dummy result

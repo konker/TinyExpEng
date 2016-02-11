@@ -30,7 +30,6 @@ import java.util.List;
  */
 public class Experiment extends MetadataObject implements IRunnableItem {
     public static final String DATA_KEY_TARGET = "__target__";
-    public static final String DATA_KEY_PARENT = "__parent__";
     public static final String DATA_KEY_RUN_CONTEXT = "__runContext__";
 
     protected List<TaskGroup> mTaskGroups;
