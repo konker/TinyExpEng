@@ -25,6 +25,9 @@ public class DummyResultDataSink implements IResultDataSink {
         "SubjectUUID",
         "SubjectId",
         "SubjectName",
+        "TaskGroupUUID",
+        "TaskGroupId",
+        "TaskGroupName",
         "TaskUUID",
         "TaskId",
         "TaskName"
@@ -128,7 +131,6 @@ public class DummyResultDataSink implements IResultDataSink {
         row.add(String.valueOf(result.getSubject().getId()));
         row.add(result.getSubject().getName());
 
-        /*[XXX: remove?]
         // TaskGroup data
         if (result.getTaskGroup() == null) {
             row.add(null);
@@ -140,7 +142,6 @@ public class DummyResultDataSink implements IResultDataSink {
             row.add(String.valueOf(result.getTaskGroup().getId()));
             row.add(result.getTaskGroup().getName());
         }
-        */
 
         // Task data
         if (result.getTask() == null) {
