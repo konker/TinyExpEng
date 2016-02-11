@@ -28,7 +28,7 @@ import java.util.List;
  * @author Konrad Markus <konker@luxvelocitas.com>
  *
  */
-public class Experiment extends MetadataObject implements IRunnableItem {
+public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     public static final String DATA_KEY_TARGET = "__target__";
     public static final String DATA_KEY_RUN_CONTEXT = "__runContext__";
 
@@ -50,7 +50,7 @@ public class Experiment extends MetadataObject implements IRunnableItem {
 
     @Override
     public void start(IRunContext runContext) {
-        mEnded = false;
+        super.start(runContext);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
@@ -58,20 +58,10 @@ public class Experiment extends MetadataObject implements IRunnableItem {
 
     @Override
     public void end(IRunContext runContext) {
-        mEnded = true;
+        super.end(runContext);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
-    }
-
-    @Override
-    public boolean hasFsm() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnded() {
-        return mEnded;
     }
 
     public void add(TaskGroup taskGroup) {

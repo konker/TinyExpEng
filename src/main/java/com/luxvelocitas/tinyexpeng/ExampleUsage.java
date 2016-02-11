@@ -65,7 +65,7 @@ public class ExampleUsage {
             t.getMetadata().putBoolean("QuxB", true);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addStateMachine(taskFsm, TaskState.ENDED);
+            t.addFsm(taskFsm, TaskState.ENDED);
 
             taskGroup1.add(t);
         }
@@ -85,7 +85,7 @@ public class ExampleUsage {
             t.setName("Real Task " + i);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addStateMachine(taskFsm, TaskState.ENDED);
+            t.addFsm(taskFsm, TaskState.ENDED);
 
             taskGroup2.add(t);
         }
@@ -103,7 +103,7 @@ public class ExampleUsage {
             t.setName("Real Task 2" + i);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addStateMachine(taskFsm, TaskState.ENDED);
+            t.addFsm(taskFsm, TaskState.ENDED);
 
             taskGroup3.add(t);
         }
@@ -164,32 +164,32 @@ public class ExampleUsage {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(runContext, TaskEvent.STEP);
+                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
+                target.triggerFsmEvent(runContext, TaskEvent.STEP);
 
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(runContext, TaskEvent.STEP);
+                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
+                target.triggerFsmEvent(runContext, TaskEvent.STEP);
 
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(runContext, TaskEvent.STEP);
+                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
+                target.triggerFsmEvent(runContext, TaskEvent.STEP);
 
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("\t\t\tTask State: " + target.getCurrentState());
-                target.triggerState(runContext, TaskEvent.STEP);
+                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
+                target.triggerFsmEvent(runContext, TaskEvent.STEP);
 
                 /*[EG]
                 // OR, just end the Task manually

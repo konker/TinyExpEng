@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class TaskGroup extends MetadataObject implements IRunnableItem {
+public class TaskGroup extends AbstractRunnableItem implements IRunnableItem {
     protected List<Task> mTasks;
     protected DataBundle mEventData;
     protected boolean mEnded;
@@ -26,7 +26,7 @@ public class TaskGroup extends MetadataObject implements IRunnableItem {
 
     @Override
     public void start(IRunContext runContext) {
-        mEnded = false;
+        super.start(runContext);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
@@ -34,20 +34,10 @@ public class TaskGroup extends MetadataObject implements IRunnableItem {
 
     @Override
     public void end(IRunContext runContext) {
-        mEnded = true;
+        super.end(runContext);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
-    }
-
-    @Override
-    public boolean hasFsm() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnded() {
-        return mEnded;
     }
 
     public void add(Task task) {
