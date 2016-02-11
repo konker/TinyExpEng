@@ -16,17 +16,10 @@ public class Task extends MetadataObject implements IRunnableItem {
     protected boolean mEnded;
 
     public Task() {
-        _init();
-    }
-
-    public Task(long id) {
-        _init();
-        setId(id);
-    }
-
-    public Task(String name) {
-        _init();
-        setName(name);
+        setUuid();
+        mDefinition = new DataBundle();
+        mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     public DataBundle getDefinition() {
@@ -47,7 +40,7 @@ public class Task extends MetadataObject implements IRunnableItem {
 
     @Override
     public void end(IRunContext runContext) {
-        mEnded = true;
+        super.end(runContext);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_END, mEventData);
@@ -79,12 +72,5 @@ public class Task extends MetadataObject implements IRunnableItem {
 
     public Enum getCurrentState() {
         return mStateMachine.getCurrentState();
-    }
-
-    private void _init() {
-        setUuid();
-        mDefinition = new DataBundle();
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 }

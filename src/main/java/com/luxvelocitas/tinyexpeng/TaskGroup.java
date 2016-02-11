@@ -17,17 +17,11 @@ public class TaskGroup extends MetadataObject implements IRunnableItem {
     protected boolean mEnded;
 
     public TaskGroup() {
-        _init();
-    }
+        setUuid();
 
-    public TaskGroup(long id) {
-        _init();
-        setId(id);
-    }
-
-    public TaskGroup(String name) {
-        _init();
-        setName(name);
+        mTasks = new ArrayList<Task>();
+        mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     @Override
@@ -98,12 +92,5 @@ public class TaskGroup extends MetadataObject implements IRunnableItem {
 
     public Iterator<Task> taskIterator() {
        return mTasks.iterator();
-    }
-
-    private void _init() {
-        setUuid();
-        mTasks = new ArrayList<Task>();
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 }

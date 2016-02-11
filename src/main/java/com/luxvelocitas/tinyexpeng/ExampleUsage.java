@@ -49,18 +49,18 @@ public class ExampleUsage {
 
 
         // Create an experiment
-        Experiment experiment1 = new Experiment("Exp1");
+        Experiment experiment1 = new Experiment();
         experiment1.setName("Experiment 1");
         experiment1.getMetadata().putFloat("FooF", 0.5f);
 
         // Create a TaskGroup
-        TaskGroup taskGroup1 = new TaskGroup("tg-t1");
+        TaskGroup taskGroup1 = new TaskGroup();
         taskGroup1.setName("Training Tasks");
         taskGroup1.getMetadata().putChar("BarC", 'K');
 
         // Create and add some tasks
         for (int i=0; i<1; i++) {
-            Task t = new Task("t" + i);
+            Task t = new Task();
             t.setName("Task " + i);
             t.getMetadata().putBoolean("QuxB", true);
             t.getDefinition().putInt("dummy_param", i);
@@ -76,12 +76,12 @@ public class ExampleUsage {
         /*[EG]
         */
         // Create a TaskGroup
-        TaskGroup taskGroup2 = new TaskGroup("tg-r1");
+        TaskGroup taskGroup2 = new TaskGroup();
         taskGroup2.setName("Real Tasks");
 
         // Create and add some tasks
         for (int i=0; i<6; i++) {
-            Task t = new Task("r" + i);
+            Task t = new Task();
             t.setName("Real Task " + i);
             t.getDefinition().putInt("dummy_param", i);
 
@@ -94,12 +94,12 @@ public class ExampleUsage {
         experiment1.add(taskGroup2);
 
         // Create a TaskGroup
-        TaskGroup taskGroup3 = new TaskGroup("tg-r2");
+        TaskGroup taskGroup3 = new TaskGroup();
         taskGroup3.setName("Real Tasks 2");
 
         // Create and add some tasks
         for (int i=0; i<6; i++) {
-            Task t = new Task("r" + i);
+            Task t = new Task();
             t.setName("Real Task 2" + i);
             t.getDefinition().putInt("dummy_param", i);
 

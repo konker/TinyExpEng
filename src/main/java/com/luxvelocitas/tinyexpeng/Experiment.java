@@ -39,17 +39,13 @@ public class Experiment extends MetadataObject implements IRunnableItem {
     protected boolean mEnded;
 
     public Experiment() {
-        _init();
-    }
+        setUuid();
 
-    public Experiment(long id) {
-        _init();
-        setId(id);
-    }
+        mTaskGroups = new ArrayList<TaskGroup>();
+        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
 
-    public Experiment(String name) {
-        _init();
-        setName(name);
+        mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     @Override
@@ -132,18 +128,5 @@ public class Experiment extends MetadataObject implements IRunnableItem {
 
     public void notifyEvent(ExperimentEvent eventType, DataBundle eventData) {
         mEventDispatcher.notify(eventType, eventData);
-    }
-
-    /**
-     * Common initialization tasks
-     */
-    private void _init() {
-        setUuid();
-        mTaskGroups = new ArrayList<TaskGroup>();
-        mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
-
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
-
     }
 }
