@@ -28,5 +28,9 @@ hs_err_pid*
 log/
 target/
 
+# Gradle
+.gradle/
+build/
+
 __scrap
 /*.csv
