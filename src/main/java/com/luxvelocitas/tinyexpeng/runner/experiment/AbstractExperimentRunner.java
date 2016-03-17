@@ -5,12 +5,11 @@ import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
+import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
-import com.luxvelocitas.tinyexpeng.runner.IRunContext;
-import com.luxvelocitas.tinyexpeng.runner.IRunner;
-import com.luxvelocitas.tinyexpeng.runner.TaskGroupNotEndedException;
+import com.luxvelocitas.tinyexpeng.runner.*;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -19,26 +18,26 @@ import java.util.List;
  * @author Konrad Markus <konker@luxvelocitas.com>
  */
 public abstract class AbstractExperimentRunner extends AbstractRunner implements IExperimentRunner, IRunner {
-    protected Experiment mCurExperiment;
+    //protected Experiment mCurExperiment;
     protected TaskGroup mCurTaskGroup;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
+    protected ITinyEventListener<ExperimentEvent, DataBundle> mExperimentEventStarListener;
     protected List<ITaskGroupRunner> mItemRunners;
 
-    @Override
-    public void start(final IRunContext runContext, final Experiment experiment) {
-        mCurExperiment = experiment;
+    protected AbstractExperimentRunner(Logger logger) {
+        super(logger);
     }
 
     @Override
     public void execute(final IRunContext runContext) {
-        // Check that the previous Task has been finished before proceeding
+        // Check that the previous TaskGroup has been finished before proceeding
         if (mCurTaskGroup != null) {
             if (!mCurTaskGroup.isEnded()) {
                 throw new TaskGroupNotEndedException("Attempt to start TaskGroup before the previous TaskGroup has ended");
             }
         }
         // Get the current task group according to the index
-        mCurTaskGroup = getCurItem(mCurExperiment);
+        mCurTaskGroup = getCurItem((Experiment)mCurRunnableItem);
         runContext.setCurrentTaskGroup(mCurTaskGroup);
 
         // Get the appropriate TaskGroupRunner
@@ -49,7 +48,7 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
     }
 
     @Override
-    public IExperimentRunner setItemRunners(final List<ITaskGroupRunner> taskGroupRunners) {
+    public IExperimentRunner setTaskGroupRunners(final List<ITaskGroupRunner> taskGroupRunners) {
         mItemRunners = taskGroupRunners;
 
         return this;
@@ -64,10 +63,13 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
         return mItemRunners.get(mIndex[mCurrentIndexPos]);
     }
 
-    protected void _init(final IRunContext runContext, final Experiment experiment) {
+    @Override
+    public void init(final IRunContext runContext, final IRunnableItem item) {
+        final Experiment experiment = (Experiment)item;
+
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 mNumExecuted++;
                 runContext.setCurrentTaskGroup(null);
 
@@ -82,5 +84,10 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
 
         // Initialize the index, allow subclass to override this
         mIndex = initIndex(mNumToExecute);
+    }
+
+    @Override
+    public void deinit(final IRunContext runContext) {
+        runContext.removeRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
     }
 }

@@ -12,5 +12,7 @@ public interface IRunnableItem {
     IRunnableItem addFsm(ITinyStateMachine stateMachine, Enum terminalState);
     boolean hasFsm();
     void triggerFsmEvent(IRunContext runContext, Enum eventType);
-    Enum getCurrentFsmState();
+    Enum getFsmCurrentState();
+
+    Enum getFsmTerminalState();
 }

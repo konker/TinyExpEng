@@ -6,23 +6,19 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
-import com.luxvelocitas.tinyexpeng.runner.AbstractRunner;
-import com.luxvelocitas.tinyexpeng.runner.IRunContext;
-import com.luxvelocitas.tinyexpeng.runner.IRunner;
-import com.luxvelocitas.tinyexpeng.runner.TaskNotEndedException;
+import com.luxvelocitas.tinyexpeng.runner.*;
+import org.slf4j.Logger;
 
 
 /**
  * @author Konrad Markus <konker@luxvelocitas.com>
  */
 public abstract class AbstractTaskGroupRunner extends AbstractRunner implements ITaskGroupRunner, IRunner {
-    protected TaskGroup mCurTaskGroup;
     protected Task mCurTask;
     protected ITinyEventListener<ExperimentEvent, DataBundle> mRunContextEventListener;
 
-    @Override
-    public void start(final IRunContext runContext, final TaskGroup taskGroup) {
-        mCurTaskGroup = taskGroup;
+    protected AbstractTaskGroupRunner(Logger logger) {
+        super(logger);
     }
 
     @Override
@@ -35,7 +31,7 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
         }
 
         // Get the current Task according to the index and start it
-        mCurTask = getCurItem(mCurTaskGroup);
+        mCurTask = getCurItem((TaskGroup)mCurRunnableItem);
         runContext.setCurrentTask(mCurTask);
 
         // Start the current Task
@@ -46,10 +42,13 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
         return taskGroup.get(mIndex[mCurrentIndexPos]);
     }
 
-    protected void _init(final IRunContext runContext, final TaskGroup taskGroup) {
+    @Override
+    public void init(final IRunContext runContext, final IRunnableItem item) {
+        final TaskGroup taskGroup = (TaskGroup)item;
+
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 mNumExecuted++;
                 runContext.setCurrentTask(null);
 
@@ -64,5 +63,10 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
 
         // Initialize the index, allow subclass to override this
         mIndex = initIndex(mNumToExecute);
+    }
+
+    @Override
+    public void deinit(final IRunContext runContext) {
+        runContext.removeRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
     }
 }

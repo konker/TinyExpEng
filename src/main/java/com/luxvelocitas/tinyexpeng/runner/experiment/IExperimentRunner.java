@@ -9,7 +9,5 @@ import java.util.List;
 
 
 public interface IExperimentRunner extends IRunner {
-    IExperimentRunner setItemRunners(List<ITaskGroupRunner> taskGroupRunners);
-
-    void start(final IRunContext runContext, final Experiment experiment);
+    IExperimentRunner setTaskGroupRunners(List<ITaskGroupRunner> taskGroupRunners);
 }

@@ -1,14 +1,35 @@
 package com.luxvelocitas.tinyexpeng.runner;
 
+import org.slf4j.Logger;
+
 /**
  */
 public abstract class AbstractRunner implements IRunner {
     protected static final int START_INDEX = -1;
 
+    protected Logger mLogger;
+    protected IRunnableItem mCurRunnableItem;
     protected int mCurrentIndexPos;
     protected int[] mIndex;
     protected int mNumToExecute;
     protected int mNumExecuted;
+
+    protected AbstractRunner(Logger logger) {
+        mLogger = logger;
+    }
+
+    @Override
+    public void start(final IRunContext runContext, final IRunnableItem item) {
+        mCurRunnableItem = item;
+
+        init(runContext, mCurRunnableItem);
+
+        // Start the Experiment
+        mCurRunnableItem.start(runContext);
+
+        // Process the TaskGroups
+        nextStep(runContext);
+    }
 
     @Override
     public boolean hasStep() {
@@ -41,5 +62,13 @@ public abstract class AbstractRunner implements IRunner {
     @Override
     public int getFirstIndexPos(int currentIndexPos) {
         return 0;
+    }
+
+    @Override
+    public void finalStep(IRunContext runContext) {
+        deinit(runContext);
+
+        // End of the Experiment
+        mCurRunnableItem.end(runContext);
     }
 }

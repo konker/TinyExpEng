@@ -6,6 +6,7 @@ import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.*;
 import com.luxvelocitas.tinyexpeng.data.DataException;
+import com.luxvelocitas.tinyexpeng.data.IEventLogDataSink;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
@@ -21,6 +22,7 @@ public class ExperimentRunContext implements IRunContext {
     protected Logger mLogger;
     protected String mRunId;
     protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDistpatcher;
+    protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mPriorityEventDistpatcher;
     private Experiment mExperiment;
     private TaskGroup mCurrentTaskGroup;
     private Task mCurrentTask;
@@ -28,12 +30,15 @@ public class ExperimentRunContext implements IRunContext {
     protected final List<Subject> mSubjects;
     protected final Set<IResultDataSink> mResultDataSinks;
     protected final Set<ISubjectDataSink> mSubjectDataSinks;
+    protected final Set<IEventLogDataSink> mEventLogDataSinks;
     private boolean mEnded;
 
     public ExperimentRunContext() {
         mEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
+        mPriorityEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
         mResultDataSinks = new CopyOnWriteArraySet<IResultDataSink>();
         mSubjectDataSinks = new CopyOnWriteArraySet<ISubjectDataSink>();
+        mEventLogDataSinks = new CopyOnWriteArraySet<IEventLogDataSink>();
 
         mSubjects = new ArrayList<Subject>();
     }
@@ -44,6 +49,20 @@ public class ExperimentRunContext implements IRunContext {
         mExperiment = experiment;
         mRunId = runId;
         mEnded = false;
+
+        // Add a priority event listener to log all events
+        addRunContextPriorityEventListener(new ITinyEventListener<ExperimentEvent, DataBundle>() {
+            @Override
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                // Write an entry to the event log for every event
+                try {
+                    ExperimentRunContext.this.addEventLog(event);
+                }
+                catch (DataException ex) {
+                    mLogger.error("Error writing event log", ex);
+                }
+            }
+        });
 
         // Add a listener for the start and end of the experiment run
         addRunContextEventListener(ExperimentEvent.EXPERIMENT_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
@@ -99,6 +118,18 @@ public class ExperimentRunContext implements IRunContext {
     }
 
     @Override
+    public IRunContext addEventLogDataSink(IEventLogDataSink dataSink) throws DataException {
+        mEventLogDataSinks.add(dataSink);
+
+        return this;
+    }
+
+    @Override
+    public void removeEventLogDataSink(IEventLogDataSink dataSink) {
+        mEventLogDataSinks.remove(dataSink);
+    }
+
+    @Override
     public IRunContext addSubject(Subject subject) throws DataException {
         // Add to the list of subjects for this run
         mSubjects.add(subject);
@@ -114,6 +145,14 @@ public class ExperimentRunContext implements IRunContext {
     @Override
     public List<Subject> getSubjects() {
         return mSubjects;
+    }
+
+    @Override
+    public IRunContext addEventLog(TinyEvent<ExperimentEvent, DataBundle> event) throws DataException {
+        for (IEventLogDataSink dataSink : mEventLogDataSinks) {
+            dataSink.writeEventLog(event);
+        }
+        return this;
     }
 
     @Override
@@ -140,7 +179,22 @@ public class ExperimentRunContext implements IRunContext {
     }
 
     @Override
+    public IRunContext addRunContextPriorityEventListener(ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
+        mPriorityEventDistpatcher.addStarListener(eventListener);
+        return this;
+    }
+
+    @Override
+    public IRunContext removeRunContextPriorityEventListener(ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
+        mPriorityEventDistpatcher.removeStarListener(eventListener);
+        return this;
+    }
+
+    @Override
     public IRunContext notifyRunContextEvent(ExperimentEvent eventType, DataBundle eventData) {
+        // Dispatch to priority listeners first
+        mPriorityEventDistpatcher.notify(eventType, eventData);
+
         // Also forward this event to the Experiment
         eventData.put(Experiment.DATA_KEY_RUN_CONTEXT, this);
         mExperiment.notifyEvent(eventType, eventData);
@@ -160,6 +214,11 @@ public class ExperimentRunContext implements IRunContext {
 
         // Close any subject data sinks
         for (ISubjectDataSink dataSink : mSubjectDataSinks) {
+            dataSink.close();
+        }
+
+        // Close any event log data sinks
+        for (IEventLogDataSink dataSink : mEventLogDataSinks) {
             dataSink.close();
         }
 

@@ -1,7 +1,13 @@
 package com.luxvelocitas.tinyexpeng.runner.experiment;
 
 
-public class SequentialSyncExperimentRunner extends BaseSyncExperimentRunner implements IExperimentRunner {
+import org.slf4j.Logger;
+
+public class SequentialSyncExperimentRunner extends AbstractExperimentRunner implements IExperimentRunner {
+    public SequentialSyncExperimentRunner(Logger logger) {
+        super(logger);
+    }
+
     @Override
     public int[] initIndex(int numToExecute) {
         int[] ret = new int[numToExecute];

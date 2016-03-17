@@ -116,6 +116,14 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
         mEventDispatcher.removeListener(eventType, eventListener);
     }
 
+    public void addEventStarListener(ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
+        mEventDispatcher.addStarListener(eventListener);
+    }
+
+    public void removeEventStarListener(ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
+        mEventDispatcher.removeStarListener(eventListener);
+    }
+
     public void notifyEvent(ExperimentEvent eventType, DataBundle eventData) {
         mEventDispatcher.notify(eventType, eventData);
     }

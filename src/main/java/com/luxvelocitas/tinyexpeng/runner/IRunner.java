@@ -3,6 +3,11 @@ package com.luxvelocitas.tinyexpeng.runner;
 /**
  */
 public interface IRunner {
+    void init(final IRunContext runContext, final IRunnableItem item);
+    void deinit(final IRunContext runContext);
+
+    void start(final IRunContext runContext, final IRunnableItem item);
+
     /** Perform one execute tick */
     void execute(final IRunContext runContext);
 

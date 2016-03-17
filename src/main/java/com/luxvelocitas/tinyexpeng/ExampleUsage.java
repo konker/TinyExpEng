@@ -4,8 +4,10 @@ import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.data.DataException;
+import com.luxvelocitas.tinyexpeng.data.IEventLogDataSink;
 import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
+import com.luxvelocitas.tinyexpeng.data.csv.CsvEventLogDataSink;
 import com.luxvelocitas.tinyexpeng.data.csv.CsvResultDataSink;
 import com.luxvelocitas.tinyexpeng.data.csv.CsvSubjectDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
@@ -30,7 +32,7 @@ public class ExampleUsage {
 
     // Task FSM states
     enum TaskState {
-        IDLE, STARTED, STEP1, STEP2, ENDED
+        IDLE, STARTED, STEP1, ENDED
     };
     enum TaskEvent {
         STEP
@@ -45,8 +47,7 @@ public class ExampleUsage {
         taskFsm
            .transition(TaskState.IDLE,    TaskEvent.STEP, TaskState.STARTED)
            .transition(TaskState.STARTED, TaskEvent.STEP, TaskState.STEP1)
-           .transition(TaskState.STEP1,   TaskEvent.STEP, TaskState.STEP2)
-           .transition(TaskState.STEP2,   TaskEvent.STEP, TaskState.ENDED)
+           .transition(TaskState.STEP1,   TaskEvent.STEP, TaskState.ENDED)
             ;
         taskFsm.setDebugMode(true);
 
@@ -83,7 +84,7 @@ public class ExampleUsage {
         taskGroup2.setName("Real Tasks");
 
         // Create and add some tasks
-        for (int i=0; i<6; i++) {
+        for (int i=0; i<3; i++) {
             Task t = new Task();
             t.setName("Real Task " + i);
             t.getDefinition().putInt("dummy_param", i);
@@ -101,7 +102,7 @@ public class ExampleUsage {
         taskGroup3.setName("Real Tasks 2");
 
         // Create and add some tasks
-        for (int i=0; i<6; i++) {
+        for (int i=0; i<3; i++) {
             Task t = new Task();
             t.setName("Real Task 2" + i);
             t.getDefinition().putInt("dummy_param", i);
@@ -162,37 +163,15 @@ public class ExampleUsage {
                 // Then, user input, etc. triggers state change in the Task until it ends
                 /*[EG]
                 */
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                while (!target.getFsmCurrentState().equals(target.getFsmTerminalState())) {
+                    System.out.println("\t\t\tTask State: " + target.getFsmCurrentState());
+                    target.triggerFsmEvent(runContext, TaskEvent.STEP);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
-                target.triggerFsmEvent(runContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
-                target.triggerFsmEvent(runContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
-                target.triggerFsmEvent(runContext, TaskEvent.STEP);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("\t\t\tTask State: " + target.getCurrentFsmState());
-                target.triggerFsmEvent(runContext, TaskEvent.STEP);
 
                 /*[EG]
                 // OR, just end the Task manually
@@ -237,9 +216,9 @@ public class ExampleUsage {
         List<ITaskGroupRunner> taskGroupRunners1 = new ArrayList<ITaskGroupRunner>();
 
         // A Task runner which runs each the task sequentially
-        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
-        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
-        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner());
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner(logger));
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner(logger));
+        taskGroupRunners1.add(new SequentialSyncTaskGroupRunner(logger));
         //taskGroupRunners1.add(new RandomOrderSyncTaskGroupRunner());
         //taskGroupRunners1.add(new StaggeredSequentialConcurrentTaskGroupRunner(1000));
         //taskGroupRunners1.add(new RandomOrderConcurrentTaskGroupRunner());
@@ -253,8 +232,8 @@ public class ExampleUsage {
         /*[EG]
         */
         IExperimentRunner experimentRunner1 =
-                new FirstNThenRestRandomOrderSyncExperimentRunner(1);
-        experimentRunner1.setItemRunners(taskGroupRunners1);
+                new FirstNThenRestRandomOrderSyncExperimentRunner(logger, 1);
+        experimentRunner1.setTaskGroupRunners(taskGroupRunners1);
 
         /*
         // -----------------------------------------------------------------------------
@@ -297,16 +276,20 @@ public class ExampleUsage {
         */
 
         try {
-            // Create a pair of data sinks
+            // Create some data sinks
             IResultDataSink csvResultDataSink1 = new CsvResultDataSink();
             csvResultDataSink1.init("./", runContext1, experiment1, TASK_CUSTOM_FIELDS);
 
             ISubjectDataSink csvSubjectDataSink1 = new CsvSubjectDataSink();
             csvSubjectDataSink1.init("./", runContext1, experiment1, null);
 
+            IEventLogDataSink csvEventLogDataSink1 = new CsvEventLogDataSink();
+            csvEventLogDataSink1.init("./", runContext1, experiment1);
+
             // Add a pair of data sinks to the run context
             runContext1.addResultDataSink(csvResultDataSink1);
             runContext1.addSubjectDataSink(csvSubjectDataSink1);
+            runContext1.addEventLogDataSink(csvEventLogDataSink1);
 
             // Write Subject data to the data sink
             runContext1.addSubject(subject1);

@@ -2,13 +2,16 @@ package com.luxvelocitas.tinyexpeng.runner.experiment;
 
 import com.luxvelocitas.tinydatautils.Util;
 import com.luxvelocitas.tinyexpeng.runner.IRunner;
+import org.slf4j.Logger;
 
 /**
  */
-public class FirstNThenRestRandomOrderSyncExperimentRunner extends BaseSyncExperimentRunner implements IRunner, IExperimentRunner {
+public class FirstNThenRestRandomOrderSyncExperimentRunner extends AbstractExperimentRunner implements IRunner, IExperimentRunner {
     protected int mFirstN;
 
-    public FirstNThenRestRandomOrderSyncExperimentRunner(int firstN) {
+    public FirstNThenRestRandomOrderSyncExperimentRunner(Logger logger, int firstN) {
+        super(logger);
+
         mFirstN = firstN;
     }
 

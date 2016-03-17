@@ -1,8 +1,13 @@
 package com.luxvelocitas.tinyexpeng.runner.taskgroup;
 
 
+import org.slf4j.Logger;
 
-public class SequentialSyncTaskGroupRunner extends BaseSyncTaskGroupRunner implements ITaskGroupRunner {
+public class SequentialSyncTaskGroupRunner extends AbstractTaskGroupRunner implements ITaskGroupRunner {
+    public SequentialSyncTaskGroupRunner(Logger logger) {
+        super(logger);
+    }
+
     @Override
     public int[] initIndex(int numToExecute) {
         int[] ret = new int[numToExecute];
