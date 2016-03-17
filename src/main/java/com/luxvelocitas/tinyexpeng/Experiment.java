@@ -113,7 +113,7 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     }
 
     public void removeEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener) {
-        mEventDispatcher.addListener(eventType, eventListener);
+        mEventDispatcher.removeListener(eventType, eventListener);
     }
 
     public void notifyEvent(ExperimentEvent eventType, DataBundle eventData) {
