@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.data.csv;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.AbstractRunnableItem;
@@ -70,6 +70,7 @@ public class CsvEventLogDataSink implements IEventLogDataSink {
         // Write everything in the result
         String[] row = getEventLogRow(event);
         mWriter.writeNext(row);
+        mWriter.flushQuietly();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.luxvelocitas.tinyexpeng.data.csv;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.Result;
 import com.luxvelocitas.tinyexpeng.data.DataException;
@@ -37,7 +37,7 @@ public class CsvResultDataSink implements IResultDataSink {
     private Experiment mExperiment;
 
     private String mResultFileName;
-    private CSVWriter mResultWriter;
+    private CSVWriter mWriter;
     private String mDataDir;
     private String[] mCustomFieldNames;
 
@@ -56,12 +56,12 @@ public class CsvResultDataSink implements IResultDataSink {
 
         try {
             mResultFileName = getResultFileName(mDataDir);
-            mResultWriter = new CSVWriter(new FileWriter(mResultFileName));
+            mWriter = new CSVWriter(new FileWriter(mResultFileName));
 
             // Write a header row if we can get one (Basically if customFieldNames are specified)
             String[] headerRow = getHeaderRow();
             if (headerRow != null) {
-                mResultWriter.writeNext(headerRow);
+                mWriter.writeNext(headerRow);
             }
         }
         catch (IOException ex) {
@@ -73,13 +73,14 @@ public class CsvResultDataSink implements IResultDataSink {
     public void writeResult(Result result) throws DataException {
         // Write everything in the result
         String[] row = getResultRow(result);
-        mResultWriter.writeNext(row);
+        mWriter.writeNext(row);
+        mWriter.flushQuietly();
     }
 
     @Override
     public void close() throws DataException {
         try {
-            mResultWriter.close();
+            mWriter.close();
         }
         catch (IOException ex) {
             throw new DataException(ex);
