@@ -69,7 +69,7 @@ public class ExampleUsage {
             t.getMetadata().putBoolean("QuxB", true);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addFsm(taskFsm, TaskState.ENDED);
+            t.setFsm(taskFsm, TaskState.ENDED);
 
             taskGroup1.add(t);
         }
@@ -89,7 +89,7 @@ public class ExampleUsage {
             t.setName("Real Task " + i);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addFsm(taskFsm, TaskState.ENDED);
+            t.setFsm(taskFsm, TaskState.ENDED);
 
             taskGroup2.add(t);
         }
@@ -107,7 +107,7 @@ public class ExampleUsage {
             t.setName("Real Task 2" + i);
             t.getDefinition().putInt("dummy_param", i);
 
-            t.addFsm(taskFsm, TaskState.ENDED);
+            t.setFsm(taskFsm, TaskState.ENDED);
 
             taskGroup3.add(t);
         }
@@ -118,16 +118,16 @@ public class ExampleUsage {
         // Add some event handlers to the experiment
         experiment1.addEventListener(ExperimentEvent.EXPERIMENT_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                Experiment target = (Experiment)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final Experiment target = ExperimentRunContext.getExperimentTarget(event);
                 System.out.println("Experiment Start: " + target.getName());
             }
         });
 
         experiment1.addEventListener(ExperimentEvent.EXPERIMENT_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                Experiment target = (Experiment)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final Experiment target = ExperimentRunContext.getExperimentTarget(event);
                 System.out.println("Experiment End: " + target.getName());
 
                 //[TODO: print out result set]
@@ -136,26 +136,27 @@ public class ExampleUsage {
 
         experiment1.addEventListener(ExperimentEvent.TASK_GROUP_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                TaskGroup target = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final TaskGroup target = ExperimentRunContext.getTaskGroupTarget(event);
+                final IRunContext runContext = ExperimentRunContext.getRunContext(event);
                 System.out.println("\tTaskGroup Start: " + target.getName());
             }
         });
 
         experiment1.addEventListener(ExperimentEvent.TASK_GROUP_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                TaskGroup target = (TaskGroup)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final TaskGroup target = ExperimentRunContext.getTaskGroupTarget(event);
                 System.out.println("\tTaskGroup End: " + target.getName());
             }
         });
 
         experiment1.addEventListener(ExperimentEvent.TASK_START, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
-                IRunContext runContext =
-                        (IRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_RUN_CONTEXT);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final Task target = ExperimentRunContext.getTaskTarget(event);
+                final IRunContext runContext = ExperimentRunContext.getRunContext(event);
+
                 System.out.println("\t\tTask start(" + Thread.currentThread().getId() + "): " + target.getName());
                 // HERE IS WHERE YOU WOULD ACTUAL PRESENT THE TASK, ETC
                 // ...
@@ -187,10 +188,9 @@ public class ExampleUsage {
 
         experiment1.addEventListener(ExperimentEvent.TASK_END, new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
-            public void receive(TinyEvent<ExperimentEvent, DataBundle> tinyEvent) {
-                Task target = (Task)tinyEvent.getEventData().get(Experiment.DATA_KEY_TARGET);
-                IRunContext runContext =
-                        (IRunContext)tinyEvent.getEventData().get(Experiment.DATA_KEY_RUN_CONTEXT);
+            public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
+                final Task target = ExperimentRunContext.getTaskTarget(event);
+                final IRunContext runContext = ExperimentRunContext.getRunContext(event);
 
                 List<Subject> subjects = runContext.getSubjects();
 
