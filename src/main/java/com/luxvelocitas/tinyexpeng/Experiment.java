@@ -37,17 +37,13 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     protected List<TaskGroup> mTaskGroups;
     protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;
 
-    protected DataBundle mEventData;
     protected boolean mEnded;
 
     public Experiment() {
-        setUuid();
+        super();
 
         mTaskGroups = new ArrayList<TaskGroup>();
         mEventDispatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
-
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     @Override

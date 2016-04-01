@@ -8,13 +8,11 @@ import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
 
 public class Task extends AbstractRunnableItem implements IRunnableItem {
     protected DataBundle mDefinition;
-    protected DataBundle mEventData;
 
     public Task() {
-        setUuid();
+        super();
+
         mDefinition = new DataBundle();
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     public DataBundle getDefinition() {

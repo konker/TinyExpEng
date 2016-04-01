@@ -13,15 +13,12 @@ import java.util.List;
 
 public class TaskGroup extends AbstractRunnableItem implements IRunnableItem {
     protected List<Task> mTasks;
-    protected DataBundle mEventData;
     protected boolean mEnded;
 
     public TaskGroup() {
-        setUuid();
+        super();
 
         mTasks = new ArrayList<Task>();
-        mEventData = new DataBundle();
-        mEventData.put(Experiment.DATA_KEY_TARGET, this);
     }
 
     @Override

@@ -272,11 +272,13 @@ public class ExperimentRunContext implements IRunContext {
 
     @Override
     public IRunContext notifyRunContextEvent(ExperimentEvent eventType, DataBundle eventData) {
+        // Make sure the event also holds the run context
+        eventData.put(Experiment.DATA_KEY_RUN_CONTEXT, this);
+
         // Dispatch to priority listeners first
         mPriorityEventDistpatcher.notify(eventType, eventData);
 
         // Also forward this event to the Experiment
-        eventData.put(Experiment.DATA_KEY_RUN_CONTEXT, this);
         mExperiment.notifyEvent(eventType, eventData);
 
         // Dispatch to all our listeners

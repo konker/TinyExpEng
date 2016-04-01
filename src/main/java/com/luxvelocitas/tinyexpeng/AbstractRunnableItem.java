@@ -15,9 +15,12 @@ public abstract class AbstractRunnableItem extends MetadataObject implements IRu
     protected boolean mEnded;
     protected DataBundle mEventData;
 
-    @Override
-    public void start(IRunContext runContext) {
+    protected AbstractRunnableItem() {
+        setUuid();
+
         mEventData = new DataBundle();
+        mEventData.put(Experiment.DATA_KEY_TARGET, this);
+    }
 
     @Override
     public void start(IRunContext runContext) {
