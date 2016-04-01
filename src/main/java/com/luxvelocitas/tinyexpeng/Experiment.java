@@ -31,6 +31,8 @@ import java.util.List;
 public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     public static final String DATA_KEY_TARGET = "__target__";
     public static final String DATA_KEY_RUN_CONTEXT = "__runContext__";
+    public static final String DATA_KEY_FSM_EVENT_STATE = "__fsm_state__";
+
 
     protected List<TaskGroup> mTaskGroups;
     protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;

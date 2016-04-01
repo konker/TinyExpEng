@@ -6,7 +6,6 @@ import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.*;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IEventLogDataSink;
-import com.luxvelocitas.tinyexpeng.data.IResultDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 
@@ -142,7 +141,7 @@ public class DummyEventLogDataSink implements IEventLogDataSink {
         if (event.getEventType().equals(ExperimentEvent.FSM_EVENT)) {
             row.add(event
                     .getEventData()
-                    .get(AbstractRunnableItem.KEY_DATA_FSM_EVENT_STATE)
+                    .get(Experiment.DATA_KEY_FSM_EVENT_STATE)
                     .toString());
         }
 

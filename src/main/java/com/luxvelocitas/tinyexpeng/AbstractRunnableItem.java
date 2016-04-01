@@ -10,8 +10,6 @@ import com.luxvelocitas.tinyfsm.ITinyStateMachine;
 /**
  */
 public abstract class AbstractRunnableItem extends MetadataObject implements IRunnableItem {
-    public static final String KEY_DATA_FSM_EVENT_STATE = "fsm_state";
-
     protected ITinyStateMachine mStateMachine;
     protected Enum mTerminalState;
     protected boolean mEnded;
@@ -21,8 +19,10 @@ public abstract class AbstractRunnableItem extends MetadataObject implements IRu
     public void start(IRunContext runContext) {
         mEventData = new DataBundle();
 
-        if (mStateMachine != null) {
-            mStateMachine.restart();
+    @Override
+    public void start(IRunContext runContext) {
+        if (hasFsm()) {
+            restartFsm(runContext);
         }
 
         mEnded = false;
@@ -39,7 +39,7 @@ public abstract class AbstractRunnableItem extends MetadataObject implements IRu
     }
 
     @Override
-    public IRunnableItem addFsm(ITinyStateMachine stateMachine, Enum terminalState) {
+    public IRunnableItem setFsm(ITinyStateMachine stateMachine, Enum terminalState) {
         mStateMachine = stateMachine;
         mTerminalState = terminalState;
         return this;
@@ -51,16 +51,41 @@ public abstract class AbstractRunnableItem extends MetadataObject implements IRu
     }
 
     @Override
+    public IRunnableItem removeFsm() {
+        mStateMachine = null;
+        mTerminalState = null;
+        return this;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public void triggerFsmEvent(IRunContext runContext, Enum eventType) {
         if (!hasFsm()) {
-            throw new RuntimeException("Call to triggerFsmEvent without an Task FSM defined");
+            throw new RuntimeException("Call to triggerFsmEvent without an FSM defined");
         }
 
         mStateMachine.trigger(eventType);
 
         // Trigger a event for the "internal" FSM state transition
-        mEventData.put(KEY_DATA_FSM_EVENT_STATE, getFsmCurrentState());
+        mEventData.put(Experiment.DATA_KEY_FSM_EVENT_STATE, getFsmCurrentState());
+        runContext.notifyRunContextEvent(ExperimentEvent.FSM_EVENT, mEventData);
+
+        if (mStateMachine.getCurrentState().equals(mTerminalState)) {
+            // End the Task
+            end(runContext);
+        }
+    }
+
+    @Override
+    public void restartFsm(IRunContext runContext) {
+        if (!hasFsm()) {
+            throw new RuntimeException("Call to restartFsm without an FSM defined");
+        }
+
+        mStateMachine.restart();
+
+        // Trigger a event for the "internal" FSM state transition
+        mEventData.put(Experiment.DATA_KEY_FSM_EVENT_STATE, getFsmCurrentState());
         runContext.notifyRunContextEvent(ExperimentEvent.FSM_EVENT, mEventData);
 
         if (mStateMachine.getCurrentState().equals(mTerminalState)) {

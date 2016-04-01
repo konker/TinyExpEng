@@ -140,7 +140,7 @@ public class CsvEventLogDataSink implements IEventLogDataSink {
         if (event.getEventType().equals(ExperimentEvent.FSM_EVENT)) {
             row.add(event
                        .getEventData()
-                       .get(AbstractRunnableItem.KEY_DATA_FSM_EVENT_STATE)
+                       .get(Experiment.DATA_KEY_FSM_EVENT_STATE)
                        .toString());
         }
         else {

@@ -9,10 +9,12 @@ public interface IRunnableItem {
     void end(IRunContext runContext);
     boolean isEnded();
 
-    IRunnableItem addFsm(ITinyStateMachine stateMachine, Enum terminalState);
+    IRunnableItem setFsm(ITinyStateMachine stateMachine, Enum terminalState);
     boolean hasFsm();
+    IRunnableItem removeFsm();
     void triggerFsmEvent(IRunContext runContext, Enum eventType);
+    void restartFsm(IRunContext runContext);
     Enum getFsmCurrentState();
-
     Enum getFsmTerminalState();
+
 }
