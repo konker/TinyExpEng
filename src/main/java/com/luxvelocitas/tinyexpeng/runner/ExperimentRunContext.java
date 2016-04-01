@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 
@@ -31,14 +32,71 @@ public class ExperimentRunContext implements IRunContext {
     protected final Set<IResultDataSink> mResultDataSinks;
     protected final Set<ISubjectDataSink> mSubjectDataSinks;
     protected final Set<IEventLogDataSink> mEventLogDataSinks;
+    protected final Stack<IRunner> mRunnerStack;
     private boolean mEnded;
+    private boolean mStarted;
+    private boolean mPaused;
 
+    // ----------------------------------------------------------------------
+    // Static helper methods
+    public static boolean hasExperimentTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        IRunnableItem target = (IRunnableItem) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        if (target instanceof Experiment) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Experiment getExperimentTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        if (hasExperimentTarget(event)) {
+            return (Experiment) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        }
+        return null;
+    }
+
+    public static boolean hasTaskGroupTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        IRunnableItem target = (IRunnableItem) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        if (target instanceof TaskGroup) {
+            return true;
+        }
+        return false;
+    }
+
+    public static IRunContext getRunContext(TinyEvent<ExperimentEvent, DataBundle> event) {
+        return (IRunContext) event.getEventData().get(Experiment.DATA_KEY_RUN_CONTEXT);
+    }
+
+    public static TaskGroup getTaskGroupTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        if (hasTaskGroupTarget(event)) {
+            return (TaskGroup) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        }
+        return null;
+    }
+
+    public static boolean hasTaskTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        IRunnableItem target = (IRunnableItem) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        if (target instanceof Task) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Task getTaskTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
+        if (hasTaskTarget(event)) {
+            return (Task) event.getEventData().get(Experiment.DATA_KEY_TARGET);
+        }
+        return null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Constructor
     public ExperimentRunContext() {
         mEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
         mPriorityEventDistpatcher = new SimpleTinyEventDispatcher<ExperimentEvent, DataBundle>();
         mResultDataSinks = new CopyOnWriteArraySet<IResultDataSink>();
         mSubjectDataSinks = new CopyOnWriteArraySet<ISubjectDataSink>();
         mEventLogDataSinks = new CopyOnWriteArraySet<IEventLogDataSink>();
+        mRunnerStack = new Stack<IRunner>();
 
         mSubjects = new ArrayList<Subject>();
     }
@@ -49,6 +107,7 @@ public class ExperimentRunContext implements IRunContext {
         mExperiment = experiment;
         mRunId = runId;
         mEnded = false;
+        mStarted = false;
 
         // Add a priority event listener to log all events
         addRunContextPriorityEventListener(new ITinyEventListener<ExperimentEvent, DataBundle>() {
@@ -89,8 +148,29 @@ public class ExperimentRunContext implements IRunContext {
     }
 
     @Override
+    public boolean isStarted() {
+        return mStarted;
+    }
+
+    @Override
     public boolean isEnded() {
         return mEnded;
+    }
+
+    @Override
+    public void pause() {
+        mPaused = true;
+    }
+
+    @Override
+    public void resume() {
+        mPaused = false;
+        mRunnerStack.peek().nextStep(this);
+    }
+
+    @Override
+    public boolean isPaused() {
+        return mPaused;
     }
 
     @Override
@@ -250,8 +330,18 @@ public class ExperimentRunContext implements IRunContext {
         mCurrentTask = task;
     }
 
+    @Override
+    public void pushRunner(IRunner runner) {
+        mRunnerStack.push(runner);
+    }
+
+    @Override
+    public IRunner popRunner() {
+        return mRunnerStack.pop();
+    }
+
     protected void _start() {
-        //[XXX: nothing at the moment]
+        mStarted = true;
     }
 
     protected void _end() {

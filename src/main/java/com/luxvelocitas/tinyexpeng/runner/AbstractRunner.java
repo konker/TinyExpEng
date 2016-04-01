@@ -24,10 +24,11 @@ public abstract class AbstractRunner implements IRunner {
 
         init(runContext, mCurRunnableItem);
 
-        // Start the Experiment
+        runContext.pushRunner(this);
+
         mCurRunnableItem.start(runContext);
 
-        // Process the TaskGroups
+        // Process the first child
         nextStep(runContext);
     }
 
@@ -38,9 +39,13 @@ public abstract class AbstractRunner implements IRunner {
 
     @Override
     public void nextStep(IRunContext runContext) {
+        if (runContext.isPaused()) {
+            return;
+        }
+
         // Get the
         if (hasStep()) {
-            // Start the next task group
+            // Start the next child item
             mCurrentIndexPos = getNextIndexPos(mCurrentIndexPos, mNumExecuted);
             execute(runContext);
         }
@@ -67,8 +72,8 @@ public abstract class AbstractRunner implements IRunner {
     @Override
     public void finalStep(IRunContext runContext) {
         deinit(runContext);
-
-        // End of the Experiment
         mCurRunnableItem.end(runContext);
+
+        runContext.popRunner();
     }
 }

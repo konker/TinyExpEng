@@ -17,7 +17,12 @@ import java.util.List;
 public interface IRunContext {
     IRunContext init(Logger logger, final Experiment experiment, final String runId);
     String getRunId();
+    boolean isStarted();
     boolean isEnded();
+
+    void pause();
+    void resume();
+    boolean isPaused();
 
     IRunContext addResultDataSink(IResultDataSink dataSink) throws DataException;
     void removeResultDataSink(IResultDataSink dataSink);
@@ -40,6 +45,9 @@ public interface IRunContext {
     void setCurrentTaskGroup(TaskGroup taskGroup);
     Task getCurrentTask();
     void setCurrentTask(Task task);
+
+    void pushRunner(IRunner runner);
+    IRunner popRunner();
 
     IRunContext addRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener);
     IRunContext removeRunContextEventListener(ExperimentEvent eventType, ITinyEventListener<ExperimentEvent, DataBundle> eventListener);
