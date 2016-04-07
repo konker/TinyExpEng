@@ -1,7 +1,5 @@
 package com.luxvelocitas.tinyexpeng;
 
-import com.luxvelocitas.tinydatautils.DataBundle;
-import com.luxvelocitas.tinydatautils.MetadataObject;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.IRunContext;
 import com.luxvelocitas.tinyexpeng.runner.IRunnableItem;
@@ -22,8 +20,8 @@ public class TaskGroup extends AbstractRunnableItem implements IRunnableItem {
     }
 
     @Override
-    public void start(IRunContext runContext) {
-        super.start(runContext);
+    public void start(IRunContext runContext, int order, int total) {
+        super.start(runContext, order, total);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_START, mEventData);
@@ -37,16 +35,17 @@ public class TaskGroup extends AbstractRunnableItem implements IRunnableItem {
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_GROUP_END, mEventData);
     }
 
+    @Override
+    public int size() {
+        return mTasks.size();
+    }
+
     public void add(Task task) {
         mTasks.add(task);
     }
 
     public void remove(Task task) {
         mTasks.remove(task);
-    }
-
-    public int size() {
-        return mTasks.size();
     }
 
     public boolean isEmpty() {

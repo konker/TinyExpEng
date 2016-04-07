@@ -139,7 +139,10 @@ public class ExampleUsage {
             public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 final TaskGroup target = ExperimentRunContext.getTaskGroupTarget(event);
                 final IRunContext runContext = ExperimentRunContext.getRunContext(event);
-                System.out.println("\tTaskGroup Start: " + target.getName());
+                final int order = ExperimentRunContext.getOrder(event);
+                final int total = ExperimentRunContext.getTotal(event);
+
+                System.out.println("\tTaskGroup Start[" + order + "/" + total + "]: " + target.getName());
             }
         });
 
@@ -156,8 +159,10 @@ public class ExampleUsage {
             public void receive(TinyEvent<ExperimentEvent, DataBundle> event) {
                 final Task target = ExperimentRunContext.getTaskTarget(event);
                 final IRunContext runContext = ExperimentRunContext.getRunContext(event);
+                final int order = ExperimentRunContext.getOrder(event);
+                final int total = ExperimentRunContext.getTotal(event);
 
-                System.out.println("\t\tTask start(" + Thread.currentThread().getId() + "): " + target.getName());
+                System.out.println("\t\tTask start(" + Thread.currentThread().getId() + ")[" + order + "/" + total + "]: " + target.getName());
                 // HERE IS WHERE YOU WOULD ACTUAL PRESENT THE TASK, ETC
                 // ...
 

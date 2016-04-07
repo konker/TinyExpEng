@@ -20,8 +20,8 @@ public class Task extends AbstractRunnableItem implements IRunnableItem {
     }
 
     @Override
-    public void start(IRunContext runContext) {
-        super.start(runContext);
+    public void start(IRunContext runContext, int order, int total) {
+        super.start(runContext, order, total);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_START, mEventData);
@@ -33,5 +33,11 @@ public class Task extends AbstractRunnableItem implements IRunnableItem {
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.TASK_END, mEventData);
+    }
+
+    @Override
+    public int size() {
+        // Task is not a composite object, so it's size defaults to 1
+        return 1;
     }
 }

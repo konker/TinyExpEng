@@ -7,6 +7,7 @@ public interface IRunner {
     void deinit(final IRunContext runContext);
 
     void start(final IRunContext runContext, final IRunnableItem item);
+    void start(final IRunContext runContext, final IRunnableItem item, int order, int total);
 
     /** Perform one execute tick */
     void execute(final IRunContext runContext);

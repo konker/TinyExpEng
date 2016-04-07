@@ -35,7 +35,7 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
         runContext.setCurrentTask(mCurTask);
 
         // Start the current Task
-        mCurTask.start(runContext);
+        mCurTask.start(runContext, mNumExecuted+1, mNumToExecute);
     }
 
     protected Task getCurItem(TaskGroup taskGroup) {
@@ -44,7 +44,7 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
 
     @Override
     public void init(final IRunContext runContext, final IRunnableItem item) {
-        final TaskGroup taskGroup = (TaskGroup)item;
+        super.init(runContext, item);
 
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
@@ -56,13 +56,6 @@ public abstract class AbstractTaskGroupRunner extends AbstractRunner implements 
             }
         };
         runContext.addRunContextEventListener(ExperimentEvent.TASK_END, mRunContextEventListener);
-
-        mNumToExecute = taskGroup.size();
-        mNumExecuted = 0;
-        mCurrentIndexPos = START_INDEX;
-
-        // Initialize the index, allow subclass to override this
-        mIndex = initIndex(mNumToExecute);
     }
 
     @Override

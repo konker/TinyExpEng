@@ -1,7 +1,6 @@
 package com.luxvelocitas.tinyexpeng;
 
 import com.luxvelocitas.tinydatautils.DataBundle;
-import com.luxvelocitas.tinydatautils.MetadataObject;
 import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.SimpleTinyEventDispatcher;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
@@ -30,9 +29,10 @@ import java.util.List;
  */
 public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     public static final String DATA_KEY_TARGET = "__target__";
-    public static final String DATA_KEY_RUN_CONTEXT = "__runContext__";
+    public static final String DATA_KEY_RUN_CONTEXT = "__run_context__";
     public static final String DATA_KEY_FSM_EVENT_STATE = "__fsm_state__";
-
+    public static final String DATA_KEY_ORDER = "__order__";
+    public static final String DATA_KEY_TOTAL = "__total__";
 
     protected List<TaskGroup> mTaskGroups;
     protected SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDispatcher;
@@ -47,8 +47,8 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
     }
 
     @Override
-    public void start(IRunContext runContext) {
-        super.start(runContext);
+    public void start(IRunContext runContext, int order, int total) {
+        super.start(runContext, order, total);
 
         // Broadcast the event to the run context
         runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_START, mEventData);
@@ -62,6 +62,11 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
         runContext.notifyRunContextEvent(ExperimentEvent.EXPERIMENT_END, mEventData);
     }
 
+    @Override
+    public int size() {
+        return mTaskGroups.size();
+    }
+
     public void add(TaskGroup taskGroup) {
         mTaskGroups.add(taskGroup);
     }
@@ -72,10 +77,6 @@ public class Experiment extends AbstractRunnableItem implements IRunnableItem {
 
     public void clearTaskGroups() {
         mTaskGroups.clear();
-    }
-
-    public int size() {
-        return mTaskGroups.size();
     }
 
     public boolean isEmpty() {

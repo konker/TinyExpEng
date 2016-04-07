@@ -13,20 +13,39 @@ public abstract class AbstractRunner implements IRunner {
     protected int[] mIndex;
     protected int mNumToExecute;
     protected int mNumExecuted;
+    protected int mOrder;
+    protected int mTotal;
 
     protected AbstractRunner(Logger logger) {
         mLogger = logger;
     }
 
     @Override
+    public void init(final IRunContext runContext, final IRunnableItem item) {
+        mNumToExecute = item.size();
+        mNumExecuted = 0;
+        mCurrentIndexPos = START_INDEX;
+
+        // Initialize the index, allow subclass to override this
+        mIndex = initIndex(mNumToExecute);
+    }
+
+    @Override
     public void start(final IRunContext runContext, final IRunnableItem item) {
+        start(runContext, item, 1, 1);
+    }
+
+    @Override
+    public void start(final IRunContext runContext, final IRunnableItem item, int order, int total) {
         mCurRunnableItem = item;
+        mOrder = order;
+        mTotal = total;
 
         init(runContext, mCurRunnableItem);
 
         runContext.pushRunner(this);
 
-        mCurRunnableItem.start(runContext);
+        mCurRunnableItem.start(runContext, mOrder, mTotal);
 
         // Process the first child
         nextStep(runContext);

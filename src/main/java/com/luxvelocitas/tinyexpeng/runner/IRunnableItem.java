@@ -5,9 +5,10 @@ import com.luxvelocitas.tinyfsm.ITinyStateMachine;
 /**
  */
 public interface IRunnableItem {
-    void start(IRunContext runContext);
+    void start(IRunContext runContext, int order, int total);
     void end(IRunContext runContext);
     boolean isEnded();
+    int size();
 
     IRunnableItem setFsm(ITinyStateMachine stateMachine, Enum terminalState);
     boolean hasFsm();

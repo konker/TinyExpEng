@@ -24,6 +24,7 @@ public class ExperimentRunContext implements IRunContext {
     protected String mRunId;
     protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mEventDistpatcher;
     protected final SimpleTinyEventDispatcher<ExperimentEvent, DataBundle> mPriorityEventDistpatcher;
+
     private Experiment mExperiment;
     private TaskGroup mCurrentTaskGroup;
     private Task mCurrentTask;
@@ -33,12 +34,21 @@ public class ExperimentRunContext implements IRunContext {
     protected final Set<ISubjectDataSink> mSubjectDataSinks;
     protected final Set<IEventLogDataSink> mEventLogDataSinks;
     protected final Stack<IRunner> mRunnerStack;
+
     private boolean mEnded;
     private boolean mStarted;
     private boolean mPaused;
 
     // ----------------------------------------------------------------------
     // Static helper methods
+    public static int getOrder(TinyEvent<ExperimentEvent, DataBundle> event) {
+        return event.getEventData().getInt(Experiment.DATA_KEY_ORDER);
+    }
+
+    public static int getTotal(TinyEvent<ExperimentEvent, DataBundle> event) {
+        return event.getEventData().getInt(Experiment.DATA_KEY_TOTAL);
+    }
+
     public static boolean hasExperimentTarget(TinyEvent<ExperimentEvent, DataBundle> event) {
         IRunnableItem target = (IRunnableItem) event.getEventData().get(Experiment.DATA_KEY_TARGET);
         if (target instanceof Experiment) {

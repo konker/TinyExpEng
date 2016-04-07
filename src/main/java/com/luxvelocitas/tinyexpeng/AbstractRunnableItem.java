@@ -23,12 +23,15 @@ public abstract class AbstractRunnableItem extends MetadataObject implements IRu
     }
 
     @Override
-    public void start(IRunContext runContext) {
+    public void start(IRunContext runContext, int order, int total) {
         if (hasFsm()) {
             restartFsm(runContext);
         }
 
         mEnded = false;
+
+        mEventData.putInt(Experiment.DATA_KEY_ORDER, order);
+        mEventData.putInt(Experiment.DATA_KEY_TOTAL, total);
     }
 
     @Override

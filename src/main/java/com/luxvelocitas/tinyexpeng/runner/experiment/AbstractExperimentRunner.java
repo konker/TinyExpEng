@@ -5,7 +5,6 @@ import com.luxvelocitas.tinyevent.ITinyEventListener;
 import com.luxvelocitas.tinyevent.TinyEvent;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
-import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.*;
 import com.luxvelocitas.tinyexpeng.runner.taskgroup.ITaskGroupRunner;
@@ -44,7 +43,7 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
         ITaskGroupRunner taskGroupRunner = getCurItemRunner();
 
         // Apply it to the current TaskGroup
-        taskGroupRunner.start(runContext, mCurTaskGroup);
+        taskGroupRunner.start(runContext, mCurTaskGroup, mNumExecuted+1, mNumToExecute);
     }
 
     @Override
@@ -65,7 +64,7 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
 
     @Override
     public void init(final IRunContext runContext, final IRunnableItem item) {
-        final Experiment experiment = (Experiment)item;
+        super.init(runContext, item);
 
         mRunContextEventListener = new ITinyEventListener<ExperimentEvent, DataBundle>() {
             @Override
@@ -77,13 +76,6 @@ public abstract class AbstractExperimentRunner extends AbstractRunner implements
             }
         };
         runContext.addRunContextEventListener(ExperimentEvent.TASK_GROUP_END, mRunContextEventListener);
-
-        mNumToExecute = experiment.size();
-        mNumExecuted = 0;
-        mCurrentIndexPos = START_INDEX;
-
-        // Initialize the index, allow subclass to override this
-        mIndex = initIndex(mNumToExecute);
     }
 
     @Override
