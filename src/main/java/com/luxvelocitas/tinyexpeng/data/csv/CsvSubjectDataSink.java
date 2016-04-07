@@ -1,11 +1,11 @@
 package com.luxvelocitas.tinyexpeng.data.csv;
 
-import com.opencsv.CSVWriter;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.Subject;
 import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.ISubjectDataSink;
 import com.luxvelocitas.tinyexpeng.runner.IRunContext;
+import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;

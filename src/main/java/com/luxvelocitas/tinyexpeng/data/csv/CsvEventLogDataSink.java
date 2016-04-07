@@ -1,9 +1,7 @@
 package com.luxvelocitas.tinyexpeng.data.csv;
 
-import com.opencsv.CSVWriter;
 import com.luxvelocitas.tinydatautils.DataBundle;
 import com.luxvelocitas.tinyevent.TinyEvent;
-import com.luxvelocitas.tinyexpeng.AbstractRunnableItem;
 import com.luxvelocitas.tinyexpeng.Experiment;
 import com.luxvelocitas.tinyexpeng.Task;
 import com.luxvelocitas.tinyexpeng.TaskGroup;
@@ -11,6 +9,7 @@ import com.luxvelocitas.tinyexpeng.data.DataException;
 import com.luxvelocitas.tinyexpeng.data.IEventLogDataSink;
 import com.luxvelocitas.tinyexpeng.event.ExperimentEvent;
 import com.luxvelocitas.tinyexpeng.runner.IRunContext;
+import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
